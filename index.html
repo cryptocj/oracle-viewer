@@ -1,0 +1,1937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oracle Market Resolution Viewer</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        :root {
+            /* Color Palette */
+            --color-primary: #667eea;
+            --color-primary-dark: #764ba2;
+            --color-primary-hover: #5a6fd8;
+            --color-secondary: #64748b;
+            --color-secondary-dark: #475569;
+            --color-white: #ffffff;
+            --color-black: #000000;
+
+            /* Status Colors */
+            --color-success: #28a745;
+            --color-success-light: #d4edda;
+            --color-success-dark: #155724;
+            --color-info: #cce5ff;
+            --color-info-dark: #004085;
+            --color-warning: #fff3cd;
+            --color-warning-border: #ffeaa7;
+            --color-warning-text: #856404;
+            --color-danger: #f8d7da;
+            --color-danger-dark: #721c24;
+            --color-danger-border: #f5c6cb;
+
+            /* Text Colors */
+            --color-text-primary: #2c3e50;
+            --color-text-secondary: #374151;
+            --color-text-muted: #6c757d;
+            --color-text-light: #64748b;
+
+            /* Background Colors */
+            --color-bg-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --color-bg-secondary: linear-gradient(145deg, #f8fafc, #f1f5f9);
+            --color-bg-card: linear-gradient(145deg, #ffffff, #fafbfc);
+            --color-bg-dark: #2d3748;
+            --color-bg-light: #f8fafc;
+            --color-bg-section: #f8f9fa;
+
+            /* Border Colors */
+            --color-border-light: #e2e8f0;
+            --color-border-medium: #e9ecef;
+            --color-border-primary: #e1f5fe;
+
+            /* Spacing */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --spacing-xxl: 40px;
+            --spacing-3xl: 48px;
+
+            /* Border Radius */
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --radius-xxl: 24px;
+            --radius-full: 50%;
+
+            /* Shadows */
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 14px rgba(102, 126, 234, 0.4);
+            --shadow-lg: 0 8px 32px rgba(0,0,0,0.08);
+            --shadow-xl: 0 12px 40px rgba(0,0,0,0.12);
+
+            /* Typography */
+            --font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            --font-family-mono: 'Courier New', monospace;
+            --font-size-sm: 0.8rem;
+            --font-size-base: 1rem;
+            --font-size-lg: 1.25rem;
+            --font-size-xl: 1.5rem;
+            --font-size-2xl: 1.8rem;
+            --font-size-3xl: 3rem;
+            --font-weight-normal: 400;
+            --font-weight-medium: 500;
+            --font-weight-semibold: 600;
+            --font-weight-bold: 700;
+
+            /* Animation */
+            --transition-base: all 0.3s ease;
+            --transition-transform: transform 0.3s ease;
+
+            /* Layout */
+            --container-max-width: 1400px;
+            --line-height-base: 1.6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--color-bg-primary);
+            min-height: 100vh;
+            padding: var(--spacing-md);
+            line-height: var(--line-height-base);
+        }
+
+        .container {
+            max-width: var(--container-max-width);
+            margin: 0 auto;
+            background: var(--color-white);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 48px 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 12px;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            opacity: 0.85;
+            font-size: 1.25rem;
+            font-weight: 400;
+            position: relative;
+            z-index: 1;
+        }
+
+        .input-section {
+            padding: 40px;
+            background: linear-gradient(145deg, #f8fafc, #f1f5f9);
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .env-selector {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding: 20px;
+            background: linear-gradient(145deg, #e3f2fd, #f3e5f5);
+            border-radius: 16px;
+            border: 2px solid #e1f5fe;
+        }
+
+        .env-selector label {
+            font-weight: 600;
+            color: #1565c0;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+
+        .env-toggle {
+            display: flex;
+            background: white;
+            border-radius: 12px;
+            padding: 4px;
+            gap: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 2px solid #e3f2fd;
+        }
+
+        .env-option {
+            padding: 12px 20px;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: #64748b;
+            min-width: 80px;
+        }
+
+        .env-option.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);
+        }
+
+        .env-option:hover:not(.active) {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .env-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: auto;
+            font-size: 13px;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .env-status {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .input-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 20px;
+            margin-bottom: 24px;
+            align-items: end;
+        }
+
+        .input-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-label {
+            font-weight: 600;
+            color: #374151;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+
+        .input-group input {
+            padding: 16px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 14px rgba(102, 126, 234, 0.4);
+            height: fit-content;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #64748b, #475569);
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 14px rgba(100, 116, 139, 0.4);
+            height: fit-content;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(100, 116, 139, 0.5);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+            padding: 12px 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .content {
+            padding: 48px 40px;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f1f5f9;
+            border-radius: 16px;
+            padding: 8px;
+            margin-bottom: 32px;
+            gap: 4px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 14px 24px;
+            background: transparent;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: #64748b;
+        }
+
+        .tab.active {
+            background: white;
+            color: #1e293b;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .resolution-card {
+            background: linear-gradient(145deg, #ffffff, #fafbfc);
+            border-radius: 24px;
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .resolution-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2, #f093fb, #f5576c);
+        }
+
+        .resolution-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .market-question {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #2c3e50;
+            line-height: 1.4;
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .status-badges {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .badge.resolvable {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge.resolved {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .badge.outcome-yes {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .badge.outcome-no {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .confidence-score {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .confidence-bar {
+            width: 100px;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            transition: width 0.5s ease;
+        }
+
+        .explanation {
+            background: linear-gradient(145deg, #f8fafc, #edf2f7);
+            padding: 32px;
+            border-radius: 20px;
+            margin: 32px 0;
+            border-left: 6px solid #667eea;
+            position: relative;
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.1);
+        }
+
+        .explanation::before {
+            content: '💡';
+            position: absolute;
+            top: -12px;
+            left: 32px;
+            background: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .explanation h3 {
+            color: #1e293b;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-left: 20px;
+        }
+
+        .explanation-text {
+            line-height: 1.8;
+            color: #374151;
+            font-size: 1.1rem;
+            margin-left: 20px;
+        }
+
+        .sources-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .source-card {
+            background: linear-gradient(145deg, #ffffff, #fafbfc);
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .source-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #10b981, #3b82f6, #8b5cf6);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .source-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+            border-color: #c7d2fe;
+        }
+
+        .source-card:hover::before {
+            opacity: 1;
+        }
+
+        .source-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .source-url {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+            display: block;
+            word-break: break-all;
+        }
+
+        .source-url:hover {
+            text-decoration: underline;
+        }
+
+        .source-snippet {
+            color: #6c757d;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            font-style: italic;
+        }
+
+        .trace-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 30px;
+        }
+
+        .trace-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .trace-item {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .trace-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .trace-value {
+            color: #2c3e50;
+        }
+
+        .expandable-section {
+            margin-top: 20px;
+        }
+
+        .expand-toggle {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 16px 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            width: 100%;
+            text-align: left;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .flow-section {
+            background: linear-gradient(145deg, #ffffff, #fafbfc);
+            border-radius: 20px;
+            padding: 32px;
+            margin-bottom: 32px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+            border: 1px solid #e2e8f0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .flow-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .flow-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 24px;
+            gap: 16px;
+        }
+
+        .flow-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+            font-weight: 600;
+        }
+
+        .flow-icon.search {
+            background: linear-gradient(135deg, #4299e1, #3182ce);
+        }
+
+        .flow-icon.debate {
+            background: linear-gradient(135deg, #ed8936, #dd6b20);
+        }
+
+        .flow-icon.aggregate {
+            background: linear-gradient(135deg, #38b2ac, #319795);
+        }
+
+        .flow-icon.resolution {
+            background: linear-gradient(135deg, #805ad5, #6b46c1);
+        }
+
+        .flow-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin: 0;
+        }
+
+        .flow-subtitle {
+            color: #718096;
+            font-size: 0.95rem;
+            margin: 4px 0 0 0;
+            font-weight: 500;
+        }
+
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 32px;
+            padding: 16px 24px;
+            background: linear-gradient(135deg, #f7fafc, #edf2f7);
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .step-number {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .step-text {
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .subsection {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 16px 0;
+            border-left: 4px solid #667eea;
+        }
+
+        .subsection-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .flow-diagram {
+            background: linear-gradient(145deg, #f8fafc, #edf2f7);
+            padding: 32px 40px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .flow-diagram h3 {
+            text-align: center;
+            margin-bottom: 24px;
+            font-size: 1.3rem;
+            color: #2d3748;
+            font-weight: 600;
+        }
+
+        .flow-steps {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1000px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .flow-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            z-index: 2;
+            background: #f8fafc;
+            padding: 8px;
+            border-radius: 12px;
+            min-width: 180px;
+        }
+
+        .flow-step-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            font-weight: 600;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .flow-step-icon.search {
+            background: linear-gradient(135deg, #4299e1, #3182ce);
+        }
+
+        .flow-step-icon.debate {
+            background: linear-gradient(135deg, #ed8936, #dd6b20);
+        }
+
+        .flow-step-icon.aggregate {
+            background: linear-gradient(135deg, #38b2ac, #319795);
+        }
+
+        .flow-step-icon.resolution {
+            background: linear-gradient(135deg, #805ad5, #6b46c1);
+        }
+
+        .flow-step-title {
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 4px;
+            font-size: 1rem;
+        }
+
+        .flow-step-subtitle {
+            color: #718096;
+            font-size: 0.85rem;
+            font-weight: 500;
+            line-height: 1.3;
+        }
+
+        .flow-arrow {
+            position: absolute;
+            top: 28px;
+            height: 2px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            z-index: 1;
+        }
+
+        .flow-arrow:nth-of-type(2) {
+            left: 20%;
+            width: 15%;
+        }
+
+        .flow-arrow:nth-of-type(3) {
+            left: 45%;
+            width: 15%;
+        }
+
+        .flow-arrow:nth-of-type(4) {
+            left: 70%;
+            width: 15%;
+        }
+
+        .flow-arrow::after {
+            content: '';
+            position: absolute;
+            right: -6px;
+            top: -4px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid #764ba2;
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+        }
+
+        @media (max-width: 768px) {
+            .flow-steps {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .flow-arrow {
+                display: none;
+            }
+
+            .flow-step {
+                min-width: 250px;
+            }
+        }
+
+        .expand-toggle:hover {
+            background: linear-gradient(135deg, #5a6fd8, #6c5ce7);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .expand-toggle::after {
+            content: '▼';
+            font-size: 0.8rem;
+            transition: transform 0.3s ease;
+        }
+
+        .expand-toggle.collapsed::after {
+            transform: rotate(-90deg);
+        }
+
+        .expand-content {
+            display: none;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #e9ecef;
+        }
+
+        .expand-content.show {
+            display: block;
+        }
+
+        .query-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .query-item {
+            background: #f8f9fa;
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            border-left: 3px solid #667eea;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .search-result-item {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .search-result-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+            font-size: 1rem;
+        }
+
+        .search-result-url {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+            display: block;
+            word-break: break-all;
+        }
+
+        .search-result-snippet {
+            color: #6c757d;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .analysis-section {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .analysis-title {
+            font-weight: 600;
+            color: #856404;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .analysis-explanation {
+            color: #6c5003;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .reference-item {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .reference-header {
+            display: flex;
+            justify-content: between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+            gap: 15px;
+        }
+
+        .reference-source {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 0.95rem;
+        }
+
+        .reference-title {
+            font-weight: 500;
+            color: #495057;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .reference-url {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.8rem;
+            display: block;
+            margin-bottom: 10px;
+            word-break: break-all;
+        }
+
+        .reference-summary {
+            color: #6c757d;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 10px;
+            font-style: italic;
+        }
+
+        .reference-snippets {
+            background: #f8f9fa;
+            border-radius: 4px;
+            padding: 10px;
+        }
+
+        .snippet-item {
+            background: #e9ecef;
+            padding: 5px 8px;
+            margin: 3px 0;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            border-left: 2px solid #667eea;
+        }
+
+        .debate-section {
+            margin-top: 30px;
+        }
+
+        .debate-entry {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-left: 4px solid #28a745;
+        }
+
+        .debate-entry.challenger {
+            border-left-color: #dc3545;
+        }
+
+        .debate-role {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .debate-content {
+            line-height: 1.6;
+            color: #495057;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 1px solid #f5c6cb;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #e9ecef;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            color: #6c757d;
+            transition: color 0.3s ease;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom: 2px solid #667eea;
+            margin-bottom: -2px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .json-viewer {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 12px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .input-group {
+                flex-direction: column;
+            }
+
+            .resolution-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .status-badges {
+                align-items: flex-start;
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔮 Oracle Market Resolution Viewer</h1>
+            <p>Beautiful visualization of AI-powered prediction market resolutions</p>
+        </div>
+
+        <div class="flow-diagram">
+            <h3>🔮 Oracle Resolution Logic Flow</h3>
+            <div class="flow-steps">
+                <div class="flow-step">
+                    <div class="flow-step-icon search">1</div>
+                    <div class="flow-step-title">Search & Analysis</div>
+                    <div class="flow-step-subtitle">Generate search queries and analyze results using Perplexity AI</div>
+                </div>
+
+                <div class="flow-arrow"></div>
+
+                <div class="flow-step">
+                    <div class="flow-step-icon debate">2</div>
+                    <div class="flow-step-title">AI Agent Debate</div>
+                    <div class="flow-step-subtitle">Challenger vs Supporter multi-round debate for consensus</div>
+                </div>
+
+                <div class="flow-arrow"></div>
+
+                <div class="flow-step">
+                    <div class="flow-step-icon aggregate">3</div>
+                    <div class="flow-step-title">Result Aggregation</div>
+                    <div class="flow-step-subtitle">Synthesize search analysis and debate outcomes</div>
+                </div>
+
+                <div class="flow-arrow"></div>
+
+                <div class="flow-step">
+                    <div class="flow-step-icon resolution">4</div>
+                    <div class="flow-step-title">Final Resolution</div>
+                    <div class="flow-step-subtitle">Build complete market resolution result</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="input-section">
+            <div class="env-selector">
+                <label>Environment:</label>
+                <div class="env-toggle">
+                    <button class="env-option active" onclick="selectEnvironment('local')">Local</button>
+                    <button class="env-option" onclick="selectEnvironment('staging')">Staging</button>
+                </div>
+                <div class="env-info">
+                    <div class="env-status"></div>
+                    <span id="env-endpoint">localhost:80</span>
+                </div>
+            </div>
+            <div class="input-group">
+                <div class="input-wrapper">
+                    <label class="input-label">Market ID</label>
+                    <input type="number" id="marketId" placeholder="Enter market ID (e.g., 123)" value="123">
+                </div>
+                <div class="input-wrapper">
+                    <label class="input-label">Market Question</label>
+                    <input type="text" id="marketQuestion" placeholder="What is your prediction market question?" value="Will Bitcoin (BTC) price drop to $102,000 tomorrow?">
+                </div>
+                <div class="btn-group">
+                    <button class="btn" onclick="fetchResolution()">🚀 Resolve Market</button>
+                    <button class="btn-outline" onclick="exportData()">📥 Export JSON</button>
+                    <button class="btn-outline" onclick="importData()">📤 Import JSON</button>
+                </div>
+            </div>
+            <input type="file" id="fileInput" class="hidden" accept=".json" onchange="handleFileImport(event)">
+            <div class="input-wrapper" style="margin-bottom: 0;">
+                <label class="input-label">Settlement Rule</label>
+                <input type="text" id="settlementRule" placeholder="Define the resolution criteria..." value="Resolve to 'Yes' if Bitcoin (BTC) price reaches $102,000 or below on any major exchange (Coinbase, Binance, Kraken) by November 12, 2025 23:59 UTC. Resolve to 'No' if price remains above $102,000." style="width: 100%;">
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('formatted')">📊 Formatted View</button>
+                <button class="tab" onclick="switchTab('json')">📋 JSON Data</button>
+            </div>
+
+            <div id="loading" class="loading" style="display: none;">
+                <div class="spinner"></div>
+                <p>Resolving market with AI Oracle...</p>
+            </div>
+
+            <div id="error" class="error" style="display: none;"></div>
+
+            <div id="formatted-content" class="tab-content active"></div>
+            <div id="json-content" class="tab-content">
+                <div class="json-viewer" id="json-viewer">No data loaded yet</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentData = null;
+        let currentEnvironment = 'local';
+
+        // Environment configuration
+        const environments = {
+            local: {
+                endpoint: 'localhost:80',
+                url: 'http://localhost:80'
+            },
+            staging: {
+                endpoint: 'zsta-delphi-service.crorc.co',
+                url: 'https://zsta-delphi-service.crorc.co'
+            }
+        };
+
+        function selectEnvironment(env) {
+            currentEnvironment = env;
+
+            // Update UI
+            document.querySelectorAll('.env-option').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[onclick="selectEnvironment('${env}')"]`).classList.add('active');
+
+            // Update endpoint display
+            document.getElementById('env-endpoint').textContent = environments[env].endpoint;
+
+            console.log(`Switched to ${env} environment: ${environments[env].url}`);
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+
+            document.querySelector(`[onclick="switchTab('${tab}')"]`).classList.add('active');
+            document.getElementById(`${tab}-content`).classList.add('active');
+        }
+
+        async function fetchResolution() {
+            const marketId = document.getElementById('marketId').value;
+            const marketQuestion = document.getElementById('marketQuestion').value;
+            const settlementRule = document.getElementById('settlementRule').value;
+
+            if (!marketId || !marketQuestion || !settlementRule) {
+                showError('Please fill in all fields');
+                return;
+            }
+
+            showLoading();
+            hideError();
+
+            try {
+                const apiUrl = `${environments[currentEnvironment].url}/oracle/market/resolve`;
+                console.log(`Making API request to: ${apiUrl}`);
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        market_id: parseInt(marketId),
+                        market_question: marketQuestion,
+                        settlement_rule: settlementRule
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                currentData = data;
+                displayResult(data);
+                updateJsonViewer(data);
+                hideLoading();
+            } catch (error) {
+                hideLoading();
+                showError(`Failed to fetch resolution: ${error.message}`);
+                console.error('Error:', error);
+            }
+        }
+
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        function hideError() {
+            document.getElementById('error').style.display = 'none';
+        }
+
+        function displayResult(data) {
+            const content = document.getElementById('formatted-content');
+
+            const outcomeClass = data.resolution_outcome ?
+                `outcome-${data.resolution_outcome.toLowerCase()}` : '';
+
+            content.innerHTML = `
+                <!-- Oracle Resolution Summary -->
+                <div class="resolution-card">
+                    <div class="resolution-header">
+                        <h2 class="market-question">${escapeHtml(data.question)}</h2>
+                        <div class="status-badges">
+                            <div class="badge resolvable">
+                                ${data.is_resolvable ? '✅ Resolvable' : '❌ Not Resolvable'}
+                            </div>
+                            ${data.is_resolved !== null ? `
+                                <div class="badge resolved">
+                                    ${data.is_resolved ? '🎯 Resolved' : '⏳ Pending'}
+                                </div>
+                            ` : ''}
+                            ${data.resolution_outcome ? `
+                                <div class="badge ${outcomeClass}">
+                                    🏆 ${escapeHtml(data.resolution_outcome)}
+                                </div>
+                            ` : ''}
+                            ${data.confidence_score ? `
+                                <div class="confidence-score">
+                                    <span>Confidence: ${data.confidence_score}%</span>
+                                    <div class="confidence-bar">
+                                        <div class="confidence-fill" style="width: ${data.confidence_score}%"></div>
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+
+                    <div class="explanation">
+                        <h3>🤖 Final Oracle Decision</h3>
+                        <div class="explanation-text">${marked.parse(data.explanation)}</div>
+                    </div>
+
+                    ${data.resolution_sources && data.resolution_sources.length > 0 ? `
+                        <div class="sources-section">
+                            <h3 class="section-title">📚 Key Resolution Sources</h3>
+                            <div class="sources-grid">
+                                ${data.resolution_sources.map(source => `
+                                    <div class="source-card">
+                                        <div class="source-title">${escapeHtml(source.title)}</div>
+                                        <a href="${escapeHtml(source.url)}" target="_blank" class="source-url">
+                                            ${escapeHtml(source.url)}
+                                        </a>
+                                        <div class="source-snippet">${marked.parse(source.snippet)}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+
+                ${data.resolution_trace ? `
+                    <!-- Step 1: Search & Analysis Phase -->
+                    <div class="flow-section">
+                        <div class="step-indicator">
+                            <div class="step-number">1</div>
+                            <div class="step-text">Search & Analysis Phase (runSearchAndAnalyse)</div>
+                        </div>
+
+                        <div class="flow-header">
+                            <div class="flow-icon search">🔍</div>
+                            <div>
+                                <h3 class="flow-title">Search Planning & Analysis</h3>
+                                <p class="flow-subtitle">AI generates search queries and analyzes results</p>
+                            </div>
+                        </div>
+
+                        ${data.resolution_trace.search_queries && data.resolution_trace.search_queries.length > 0 ? `
+                            <div class="subsection">
+                                <div class="subsection-title">📝 Search Queries Generated</div>
+                                <ul class="query-list">
+                                    ${data.resolution_trace.search_queries.map(query => `
+                                        <li class="query-item">${escapeHtml(query)}</li>
+                                    `).join('')}
+                                </ul>
+                            </div>
+                        ` : ''}
+
+                        ${data.resolution_trace.search_result && data.resolution_trace.search_result.length > 0 ? `
+                            <div class="subsection">
+                                <div class="subsection-title">🌐 Perplexity Search Results (${data.resolution_trace.search_result.length})</div>
+                                <button class="expand-toggle collapsed" onclick="toggleExpand('search-results')">
+                                    View Search Results from Perplexity AI
+                                </button>
+                                <div id="search-results" class="expand-content">
+                                    ${data.resolution_trace.search_result.map((result, index) => `
+                                        <div class="search-result-item">
+                                            <div class="search-result-title">${escapeHtml(result.title)}</div>
+                                            <a href="${escapeHtml(result.url)}" target="_blank" class="search-result-url">
+                                                ${escapeHtml(result.url)}
+                                            </a>
+                                            <div class="search-result-snippet">${marked.parse(result.snippet)}</div>
+                                            ${result.date ? `<small style="color: #6c757d; font-style: italic;">Date: ${escapeHtml(result.date)}</small>` : ''}
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+
+                        ${data.resolution_trace.analyse_result ? `
+                            <div class="subsection">
+                                <div class="subsection-title">🧠 Search Analysis Result</div>
+                                <div class="analysis-section">
+                                    <div class="analysis-explanation">
+                                        <strong>Initial Analysis Status:</strong> ${data.resolution_trace.analyse_result.is_resolved ? 'Resolved' : 'Unresolved'}<br>
+                                        ${data.resolution_trace.analyse_result.resolution_outcome ? `<strong>Preliminary Outcome:</strong> ${escapeHtml(data.resolution_trace.analyse_result.resolution_outcome)}<br>` : ''}
+                                        <br>
+                                        ${marked.parse(data.resolution_trace.analyse_result.explanation)}
+                                    </div>
+
+                                    ${data.resolution_trace.analyse_result.references && data.resolution_trace.analyse_result.references.length > 0 ? `
+                                        <button class="expand-toggle collapsed" onclick="toggleExpand('analysis-references')">
+                                            View Analysis References (${data.resolution_trace.analyse_result.references.length})
+                                        </button>
+                                        <div id="analysis-references" class="expand-content">
+                                            ${data.resolution_trace.analyse_result.references.map(ref => `
+                                                <div class="reference-item">
+                                                    <div class="reference-header">
+                                                        <div class="reference-source">🔗 ${escapeHtml(ref.source)}</div>
+                                                    </div>
+                                                    <div class="reference-title">${escapeHtml(ref.title)}</div>
+                                                    <a href="${escapeHtml(ref.url)}" target="_blank" class="reference-url">
+                                                        ${escapeHtml(ref.url)}
+                                                    </a>
+                                                    <div class="reference-summary">${escapeHtml(ref.summary)}</div>
+
+                                                    ${ref.snippets && ref.snippets.length > 0 ? `
+                                                        <div class="reference-snippets">
+                                                            <strong style="font-size: 0.8rem; color: #495057;">Key Snippets:</strong>
+                                                            ${ref.snippets.map(snippet => `
+                                                                <div class="snippet-item">${escapeHtml(snippet)}</div>
+                                                            `).join('')}
+                                                        </div>
+                                                    ` : ''}
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <!-- Step 2: Debate Phase -->
+                    ${data.resolution_trace.debate_history && data.resolution_trace.debate_history.length > 0 ? `
+                        <div class="flow-section">
+                            <div class="step-indicator">
+                                <div class="step-number">2</div>
+                                <div class="step-text">Debate Phase (runRoundDebate)</div>
+                            </div>
+
+                            <div class="flow-header">
+                                <div class="flow-icon debate">💬</div>
+                                <div>
+                                    <h3 class="flow-title">AI Agent Debate</h3>
+                                    <p class="flow-subtitle">Challenger vs Supporter - Multi-round debate for consensus</p>
+                                </div>
+                            </div>
+
+                            <div class="subsection">
+                                <div class="subsection-title">
+                                    🎯 Debate Status: ${data.resolution_trace.debate_consensus_reached ?
+                                        '<span style="color: #28a745;">✅ Consensus Reached</span>' :
+                                        '<span style="color: #dc3545;">❌ No Consensus</span>'
+                                    }
+                                </div>
+                                <button class="expand-toggle collapsed" onclick="toggleExpand('debate-history')">
+                                    View Debate History (${data.resolution_trace.debate_history.length / 2} rounds)
+                                </button>
+                                <div id="debate-history" class="expand-content">
+                                    ${data.resolution_trace.debate_history.map((entry, index) => {
+                                        const isChallenger = entry.includes('Debate Challenger');
+                                        const role = isChallenger ? 'Challenger' : 'Supporter';
+                                        const content = entry.replace(/^Debate (Challenger|Supporter) \(Round \d+\): /, '');
+
+                                        return `
+                                            <div class="debate-entry ${isChallenger ? 'challenger' : 'supporter'}">
+                                                <div class="debate-role">
+                                                    ${isChallenger ? '🔴' : '🟢'} Debate ${role} (Round ${Math.floor(index/2) + 1})
+                                                </div>
+                                                <div class="debate-content">${marked.parse(content)}</div>
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <!-- Step 3: Aggregation Phase -->
+                    <div class="flow-section">
+                        <div class="step-indicator">
+                            <div class="step-number">3</div>
+                            <div class="step-text">Aggregation Phase (runAggregateResult)</div>
+                        </div>
+
+                        <div class="flow-header">
+                            <div class="flow-icon aggregate">⚡</div>
+                            <div>
+                                <h3 class="flow-title">Result Aggregation</h3>
+                                <p class="flow-subtitle">AI synthesizes search analysis and debate outcomes</p>
+                            </div>
+                        </div>
+
+                        <div class="subsection">
+                            <div class="subsection-title">📊 Aggregation Summary</div>
+                            <div class="trace-grid">
+                                <div class="trace-item">
+                                    <div class="trace-label">Resolvable</div>
+                                    <div class="trace-value">${data.is_resolvable ? 'Yes' : 'No'}</div>
+                                </div>
+                                <div class="trace-item">
+                                    <div class="trace-label">Resolved</div>
+                                    <div class="trace-value">${data.is_resolved ? 'Yes' : 'No'}</div>
+                                </div>
+                                <div class="trace-item">
+                                    <div class="trace-label">Outcome</div>
+                                    <div class="trace-value">${data.resolution_outcome || 'None'}</div>
+                                </div>
+                                <div class="trace-item">
+                                    <div class="trace-label">Confidence</div>
+                                    <div class="trace-value">${data.confidence_score || 'N/A'}%</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Final Resolution -->
+                    <div class="flow-section">
+                        <div class="step-indicator">
+                            <div class="step-number">4</div>
+                            <div class="step-text">Resolution Building (buildResolutionResult)</div>
+                        </div>
+
+                        <div class="flow-header">
+                            <div class="flow-icon resolution">🎯</div>
+                            <div>
+                                <h3 class="flow-title">Final Resolution</h3>
+                                <p class="flow-subtitle">Complete market resolution result construction</p>
+                            </div>
+                        </div>
+
+                        <div class="subsection">
+                            <div class="subsection-title">📋 Resolution Metadata</div>
+                            <div class="trace-grid">
+                                <div class="trace-item">
+                                    <div class="trace-label">Market ID</div>
+                                    <div class="trace-value">${data.market_id}</div>
+                                </div>
+                                <div class="trace-item">
+                                    <div class="trace-label">Original Question</div>
+                                    <div class="trace-value">${escapeHtml(data.resolution_trace.original_question)}</div>
+                                </div>
+                                <div class="trace-item">
+                                    <div class="trace-label">Market Sides</div>
+                                    <div class="trace-value">${data.resolution_trace.sides.map(side =>
+                                        `<span class="badge" style="margin-right: 5px;">${escapeHtml(side)}</span>`
+                                    ).join('')}</div>
+                                </div>
+                                <div class="trace-item">
+                                    <div class="trace-label">Search Queries Executed</div>
+                                    <div class="trace-value">${data.resolution_trace.search_queries.length}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                ` : ''}
+            `;
+        }
+
+        function updateJsonViewer(data) {
+            const jsonViewer = document.getElementById('json-viewer');
+            jsonViewer.textContent = JSON.stringify(data, null, 2);
+        }
+
+        function escapeHtml(text) {
+            if (typeof text !== 'string') return text;
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function toggleExpand(elementId) {
+            const element = document.getElementById(elementId);
+            const button = event.target;
+
+            if (element.classList.contains('show')) {
+                element.classList.remove('show');
+                button.classList.add('collapsed');
+            } else {
+                element.classList.add('show');
+                button.classList.remove('collapsed');
+            }
+        }
+
+        // Export current JSON data from the JSON tab
+        function exportData() {
+            if (!currentData) {
+                showError('No JSON data available to export. Please resolve a market first.');
+                return;
+            }
+
+            const dataStr = JSON.stringify(currentData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+
+            // Use market_id from the data for filename, or fallback to generic name
+            const marketId = currentData.market_id || 'unknown';
+            const date = new Date().toISOString().split('T')[0];
+            link.download = `oracle-resolution-${marketId}-${date}.json`;
+
+            link.click();
+
+            // Clean up
+            URL.revokeObjectURL(link.href);
+        }
+
+        // Trigger file import dialog
+        function importData() {
+            document.getElementById('fileInput').click();
+        }
+
+        // Handle file import
+        function handleFileImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+
+                    // Check if this looks like resolution data (has typical oracle fields)
+                    if (data.market_id && (data.question || data.resolution_outcome !== undefined)) {
+                        // This appears to be oracle resolution data
+                        currentData = data;
+
+                        // Populate form fields from the resolution data
+                        if (data.market_id) {
+                            document.getElementById('marketId').value = data.market_id;
+                        }
+                        if (data.question) {
+                            document.getElementById('marketQuestion').value = data.question;
+                        }
+
+                        // Display the imported resolution data
+                        displayResult(data);
+                        updateJsonViewer(data);
+
+                        console.log('Oracle resolution data imported successfully');
+                    } else {
+                        // Try to handle legacy format (form data with nested resolution_data)
+                        if (data.resolution_data) {
+                            currentData = data.resolution_data;
+                            displayResult(data.resolution_data);
+                            updateJsonViewer(data.resolution_data);
+
+                            // Populate form fields from container
+                            if (data.market_id) {
+                                document.getElementById('marketId').value = data.market_id;
+                            }
+                            if (data.question) {
+                                document.getElementById('marketQuestion').value = data.question;
+                            }
+                            if (data.settlement_rule) {
+                                document.getElementById('settlementRule').value = data.settlement_rule;
+                            }
+                            if (data.environment && environments[data.environment]) {
+                                selectEnvironment(data.environment);
+                            }
+
+                            console.log('Legacy format imported successfully');
+                        } else {
+                            showError('This JSON file does not appear to contain oracle resolution data.');
+                        }
+                    }
+
+                    // Reset file input
+                    event.target.value = '';
+
+                } catch (error) {
+                    showError('Invalid JSON file. Please select a valid JSON file.');
+                    console.error('Import error:', error);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Load sample data on page load
+        window.addEventListener('load', () => {
+            const sampleData = {
+  "market_id": 123,
+  "question": "Will Bitcoin (BTC) price drop to $102,000 or below by November 12, 2025 23:59 UTC?",
+  "is_resolvable": true,
+  "is_resolved": false,
+  "resolution_outcome": "Yes",
+  "explanation": "The market is resolvable as current and historical crypto price data were accessible via various sources. While initial analysis focused on the price as of November 11, 2025, the debate uncovered evidence indicating Bitcoin's price dropped to $102,000 or below during the weekend of November 9-10, 2025. Specifically, reports confirmed it touched \"just under $99,000\" and tested the $98,100-$102,000 range. This occurred within the market's settlement deadline of November 12, 2025 23:59 UTC, satisfying the condition for a 'Yes' resolution despite calls for more granular, exchange-specific data.",
+  "confidence_score": 90,
+  "resolution_sources": [
+    {
+      "title": "Debate Challenger/Supporter - Aggregated Crypto News Reports",
+      "url": "N/A - aggregated from debate",
+      "snippet": "Reports on November 9, 2025, noted that 'Bitcoin's price has struggled to maintain stability above $102,000 in recent days' and was trading at $101,655. Another report on the same day stated, 'BTC Back Below $102K... The asset bottomed (at least for now) at just under $99,000'."
+    },
+    {
+      "title": "Cointelegraph - Bitcoin's Double Bottom Over Weekend",
+      "url": "N/A - specific article not provided, but cited in debate",
+      "snippet": "A Cointelegraph article from November 10, 2025, further stated that 'Bitcoin (BTC) staged a textbook double bottom pattern over the weekend... The formation coincided with the daily order block between $98,100 and $102,000, where BTC repeatedly tested the $100,000 zone before rebounding.'"
+    }
+  ],
+  "resolution_trace": {
+    "original_question": "Will Bitcoin (BTC) price drop to $102,000 or below by tomorrow?",
+    "sides": [
+      "Yes",
+      "No"
+    ],
+    "search_queries": [
+      "Current Bitcoin (BTC) price USD real-time",
+      "Bitcoin (BTC) price history lowest point today Coinbase Binance Kraken",
+      "Bitcoin (BTC) price drop to $102,000 on any major exchange",
+      "Verify Bitcoin (BTC) price data Coinbase Binance Kraken",
+      "Bitcoin (BTC) price below $102,000 news and alerts"
+    ],
+    "search_result": [
+      {
+        "title": "Bitcoin price today, BTC to USD live price, marketcap ...",
+        "url": "https://coinmarketcap.com/currencies/bitcoin/",
+        "snippet": "# Bitcoin priceBTC#1\n\n## Bitcoin to USD Chart\n\nLoading Data\n\nPlease wait a moment.\n\n## Bitcoin statistics\n\n- Market cap\n\n- $2.07T\n\n1.05%\n\n- Volume (24h)\n\n- $71.51B\n\n0.03%\n\n- FDV\n\n- $2.18T\n\n- Vol/Mkt Cap (24h)\n\n- 3.44%\n\n- Total supply\n\n- 19.94M BTC\n\n- Circulating supply\n\n- 19.94M BTC\n\n###### CoinBites: Bitcoin - The OG Crypto That Started It All\n\nLoading Data\n\nPlease wait a moment.\n\n## Bitcoin Markets\n\n##### ALL\n\n##### ALL\n\n##### CEX\n\n##### CEX\n\n##### DEX\n\n##### DEX\n\n##### Spot\n\n##### Spot\n\n##### Perpetual\n\n##### Perpetual\n\n##### Futures\n\n##### Futures\n\n|## Loading data...|\n|--|\nDisclaimer: This page may contain affiliate links. CoinMarketCap may be compensated if you visit any affiliate links and you take certain actions such as signing up and transacting with these affiliate platforms. Please refer to Affiliate Disclosure\n\n## Bitcoin News\n\n##### Top\n\n##### Top\n\n##### Latest\n\n##### Latest\n\n## Bitcoin community\n\n### Bitcoin Yield\n\n### Bitcoin Market Cycles\n\n## About Bitcoin\n\n### What Is Bitcoin (BTC)?\n\nBitcoin is a decentralized cryptocurrency originally described in a 2008 whitepaper by a person, or group of people, using the alias Satoshi Nakamoto. It was launched soon after, in January 2009.\n\nBitcoin is a peer-to-peer online currency, meaning that all transactions happen directly between equal, independent network participants, without the need for any intermediary to permit or facilitate them. Bitcoin was created, according to Nakamoto’s own words, to allow “online payments to be sent directly from one party to another without going through a financial institution.”\n\nSome concepts for a similar type of a decentralized electronic currency precede BTC, but Bitcoin holds the distinction of being the first-ever cryptocurrency to come into actual use.",
+        "date": "2025-11-10",
+        "last_updated": "2025-11-11"
+      },
+      {
+        "title": "Bitcoin (BTC) Price",
+        "url": "https://www.coindesk.com/price/bitcoin",
+        "snippet": "# Bitcoin$105,344.920.80%\n\nMarket Cap. #1\n\n$2,101,303,240,106Volume (24h) #1\n\n$26,277,907,791\n\nSupply (Circ. / Total / Max)19.95M / 19.95M / 21.00M\n\nOpen\n\n\n\nHigh\n\n\n\nLow\n\n\n\nVol.\n\n\n\n1H\n\n24H\n\n7D\n\n1M\n\n1Y\n\nAll\n\n1H\n\n24H\n\n7D\n\n1M\n\n1Y\n\nAll\n\nNeed more data?Explore CoinDesk's API\n\nMarket Cap. #1\n\n$2,101,303,240,106Volume (24h) #1\n\n$26,277,907,791\n\nSupply (Circ. / Total / Max)19.95M / 19.95M / 21.00M\n\nLaunch Date2009-01-03\n\nBlock Number923,140\n\nBlock Reward3.13\n\nLast Block Size1,556,763\n\nNetwork H/s1217998313.35T2009-01-03Launch Date923,140Block Number3.13Block Reward1,556,763Last Block Size1217998313.35TNetwork H/s... ## Bitcoin Price Converter\n\n## Bitcoin Information\n\n## Bitcoin MarketsView all\n\n## Bitcoin Supported Platforms\n\n|1WBTC|HRC20|ONE|0x3095c7557bcb296ccc6e363de01b760ba031f2d9|2020-10-16|\n|--|--|--|--|--|\n|ABWBTC|ERC20|ARB|0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f|2021-06-16|\n|BBITBTC|ERC20|ETH|0xF5e11df1ebCf78b6b6D26E04FF19cD786a1e81dC|2024-04-16|\n|BBITBTC|BEP20|BNB|0xf5e11df1ebcf78b6b6d26e04ff19cd786a1e81dc|2024-04-16|\n|BBITBTC|BB|0xF5e11df1ebCf78b6b6D26E04FF19cD786a1e81dC|2024-08-30|... ## About BitcoinBitcoin is a decentralized cryptocurrency that uses peer-to-peer technology and a blockchain to record transactions. It was created by Satoshi Nakamoto and the first block was mined on January 3, 2009. Bitcoin transactions are recorded on a blockchain, which is a distributed ledger that can be accessed by anyone to verify transactions. Transactions are verified by miners, who are rewarded with a set amount of Bitcoin and transaction fees. The supply of Bitcoin is limited to 21 million coins and it is divisible to eight decimal places. A wallet is needed to use Bitcoin and it consists of a public key, which is used to send and receive payments, and a private key, which is used to control the wallet. Bitcoin can be used for a variety of purposes, including everyday transactions, as a store of value, or for investment.\n\nBitcoin is a decentralized digital currency that uses cryptography to secure transactions and control the supply of new coins. It operates on a peer-to-peer network, where every transaction is recorded on a public ledger called the blockchain. As the first digital currency to enable direct transfers of value without intermediaries, Bitcoin has pioneered a new approach to money. Today, it functions as both a medium of exchange and a store of value, influencing global finance and inspiring many other digital currencies.\n\nEach bitcoin is made up of 100 million satoshis, making it divisible up to eight decimal places. This means that anyone can purchase a fraction of a bitcoin with as little as one U.S. dollar.",
+        "date": "2024-10-03",
+        "last_updated": "2025-11-11"
+      },
+      {
+        "title": "Bitbo: Live Bitcoin Price & Chart",
+        "url": "https://bitbo.io",
+        "snippet": "# Bitcoin Live Price (USD)\n\n\n\n104,392.18\n\n\n\n0\n\n\n\n0\n\n\n\n### 24h High\n\n107,482.00\n\n### 24h Low\n\n103,800.00\n\n### 24h Vol (BTC)\n\n564,834\n\n### 24h Vol (USD)\n\n59.05\n\nB\n\n### ATH (USD)\n\n126,277.05\n\n### Market Cap\n\n2.08\n\nT\n\n### Sats per USD\n\n958\n\nLoading...\n\n## Latest Articles\n\n## Bitcoin Market Stats\n\n### 24hr Range\n\n$ 103,800.00 - $ 107,482.00\n\n### 24h Vol (BTC)\n\n564,834\n\n### 24h Vol (USD)\n\n$ 59.05 B\n\n### ATH (USD)\n\n$ 126,277.05\n\n### Market Cap\n\n$ 2.08 T\n\n### Sats per USD\n\n958\n\n## Latest Articles\n\n## Blockchain Stats\n\n### Block Height\n\n923,165\n\n### Time Since Last Block\n\n1:56\n\n### Average Block Time\n\n10:15\n\n## Mining Stats\n\n### Blocks Mined (24hrs)\n\n156\n\n### Total Fees vs. Subsidy (24hrs)\n\n0.8%\n\n## Fee Estimates & Mempool Stats\n\n### Median Fee - Next Block\n\n1sat/vB\n\n### Median Fee - 30 Minutes\n\n1sat/vB\n\n### Median Fee - 1 Hour\n\n1sat/vB\n\n### Transactions In Mempool\n\n1,969\n\n### Pending Fees\n\n0.01BTC\n\n### Pending Fees Value\n\n$ 1,243.84\n\n### Virtual Size\n\n0.82MB\n\n### Blocks To Clear\n\n1\n\n### Percentage RBF\n\n62.37%... ## U.S. ETF Prices (24HR Change)\n\n### ARKB - Ark Invest\n\n$34.66USD (-1.55%)\n\n### BITB - Bitwise\n\n$56.75USD (-1.53%)\n\n### BRRR - Valkyrie\n\n$29.52USD (-1.44%)\n\n### BTCO - Invesco Galaxy\n\n$103.72USD (-1.85%)\n\n### BTCW - WisdomTree\n\n$112.33USD (0%)\n\n### EZBC - Franklin\n\n$60.42USD (-1.55%)\n\n### FBTC - Fidelity\n\n$91.03USD (-1.52%)\n\n### GBTC - Grayscale\n\n$81.74USD (-1.58%)\n\n### HODL - VanEck\n\n$29.52USD (-1.53%)\n\n### IBIT - Blackrock\n\n$59.25USD (-1.56%)\n\n## U.S. ETF Premiums\n\n### ARKB - Ark Invest\n\n-0.38%\n\n### BITB - Bitwise\n\n-0.25%\n\n### FBTC - Fidelity\n\n-0.29%\n\n### GBTC - Grayscale\n\n-1.88%\n\n### IBIT - Blackrock\n\n-0.43%\n\n## U.S. ETF Volumes (USD)**\n\n### Total Volume\n\n$535.19M\n\n### ARKB - Ark Invest\n\n$11.40M (2.13%)\n\n### BITB - Bitwise\n\n$13.08M (2.45%)\n\n### BRRR - Valkyrie\n\n$0.65M (0.12%)\n\n### BTCO - Invesco / Galaxy\n\n$1.56M (0.29%)\n\n### BTCW - WisdomTree\n\n$58,892.25 (0.01%)\n\n### EZBC - Franklin Templeton\n\n$0.75M (0.14%)\n\n### FBTC - Fidelity\n\n$55.66M (10.4%)\n\n### GBTC - Grayscale\n\n$46.21M (8.63%)\n\n### HODL - VanEck\n\n$4.65M (0.87%)\n\n### IBIT - Blackrock\n\n$401.12M (74.95%)... ## Closed-End Funds\n\n### OBTC Price*\n\n$31.71USD\n\n### OBTC Premium\n\n-5.96%\n\n### QBTC.U-TO Price\n\n$99.48USD\n\n### QBTC.U-TO Premium\n\n-5.32%\n\n## Exchange-Traded Funds\n\n### BTCC.U-TO Price\n\n$18.51USD\n\n### BTCX.U-TO Price\n\n$19.64USD\n\n### EBIT.U-TO Price\n\n$36.89USD\n\n### BTCQ.U-TO Price\n\n$15.7USD\n\n### BITC.U-TO Price\n\n$8.04USD\n\n## Energy Markets\n\n### WTI Crude Price\n\n$60.95BBL\n\n### Bitcoin Priced In WTI Crude\n\n1,712.75BBL\n\n### Brent Crude Price\n\n$64.92BBL\n\n### Bitcoin Priced In Brent Crude\n\n1,608.01BBL\n\n### Natural Gas Price\n\n$4.46MMBtu\n\n### Bitcoin Priced In Natural Gas\n\n23,406.32MMBtu\n\n## Bitcoin Treasuries\n\n## Future Bitcoin Halvings\n\n### Block 1,050,000\n\nApr 10, 2028\n\n### Block 1,260,000\n\nApr 7, 2032\n\n### Block 1,470,000\n\nApr 5, 2036\n\n### Block 1,680,000\n\nApr 2, 2040\n\n### Block 1,890,000\n\nMar 30, 2044\n\n### Block 2,100,000\n\nMar 28, 2048... ## Bitcoin Nodes\n\n### Reachable Bitcoin Nodes\n\n23,933\n\n### Bitcoin Tor Nodes\n\n15,378\n\n### Percentage Tor Nodes\n\n64.25%\n\n## Top Bitcoin Node Versions\n\n### Satoshi 28.1.0\n\n2,720 (11.36%)\n\n### Satoshi 29.1.0\n\n2,422 (10.12%)\n\n### Satoshi 29.0.0\n\n2,232 (9.33%)\n\n### Satoshi 30.0.0\n\n2,077 (8.68%)\n\n### Knots 29.2.0\n\n1,863 (7.78%)\n\n### Satoshi 26.0.0\n\n1,832 (7.65%)\n\n### Knots 29.1.0\n\n1,662 (6.94%)\n\n### Knots 28.1.0\n\n1,285 (5.37%)\n\n### Satoshi 27.1.0\n\n1,040 (4.35%)\n\n### Satoshi 25.1.0\n\n1,027 (4.29%)\n\n## Lightning Network Stats\n\n### Network Capacity\n\n4,815.21BTC\n\n### Network Capacity Value\n\n$ 502.67 M\n\n### Number of Channels\n\n43,718\n\n### Number of Nodes\n\n12,631\n\n### Average Channel Capacity\n\n0.11BTC\n\n### Average Channel Capacity Value\n\n$ 11,475.78\n\n### Average Channels Per Node\n\n6.92\n\n### Average Node Capacity\n\n0.381\n\n### Number of Tor Nodes\n\n7,617... ## U.S. ETF Bitcoin Holdings (Value)\n\n## Mining Stock Prices (% Change)**\n\n### BITF - Bitfarms\n\n$ 3.5USD (-2.09%)\n\n### BTBT - Bit Digital\n\n$ 2.96USD (-2.63%)\n\n### CIFR - Cipher Mining\n\n$ 19.08USD (-2.91%)\n\n### CLSK - Cleanspark\n\n$ 14.18USD (-5.66%)\n\n### CORZ - Core Scientific\n\n$ 17.85USD (-7.47%)\n\n### HIVE - Hive Blockchain\n\n$ 4.63USD (-2.12%)\n\n### HUT - Hut 8 Mining Corp\n\n$ 44.87USD (-4.88%)\n\n### MARA - Marathon Digital\n\n$ 15.03USD (-3.53%)\n\n### RIOT - Riot Platforms\n\n$ 16.52USD (-4.62%)",
+        "date": "2024-09-26",
+        "last_updated": "2025-11-11"
+      },
+      {
+        "title": "Bitcoin Price, BTC Price, Live Charts, and Marketcap: btc, bitcoin price usd, btc price usd",
+        "url": "https://www.coinbase.com/price/bitcoin",
+        "snippet": "|Network|Address|\n|--|--|\n|Arbitrum|0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf|\n|Solana|cbbtcf3aa214zXHbiAZQwf4122FBYbraNdFqgw4iMij|\n|Ethereum|0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf|\n|Base|0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf|\n|Time|Price|Change|\n|--|--|--|\n|Today|$118,885.34|↗ 0.81%|\n|1 Day|$118,113.73|↗ 0.81%|\n|1 Week|$118,734.18|↗ 0.17%|\n|1 Month|$107,368.79|↗ 10.78%|\n|1 Year|$66,769.20|↗ 78.13%|\nThe latest BTC price is $118,885.34. Compared to Bitcoin's value of $118,113.73 from 24 hours ago, there's been a 1% increase, while the current price is 0% up from $118,734.18 which was recorded one week ago. Bitcoin's all time high is $122,979.87, which was reached on July 14, 2025. This is a -3% change from its price today.... The current circulating supply of Bitcoin is 19,898,575. This is 95% of its max supply of 21,000,000 BTC and 100% of its total supply of 19,898,575. The market cap is currently $2.37T, which is a result of multiplying the current price of Bitcoin($118,885.34) by the total supply(19,898,575 BTC). The fully diluted valuation of Bitcoin is $2.50T. The diluted valuation of Bitcoin is $2.50T.\n\nBitcoin had 59,983 buyers, 24,146 sellers and total 79,779 trades in the last 24h. Bitcoin was searched 19,782 times in the last 24h.\n\nBitcoin is the #1 most popular crypto that is currently traded on Coinbase. Bitcoin currently has a 62% dominance, meaning it makes up that percentage of the total crypto market cap. The trading volume in the past 24-hour period is $60.47B. While the trading volume in the last 7 days is $338.48B, or an average of $48.35B, which would be a $12.12B increase from the last 24h trading volume. The trading volume in the last 30 days is $2.12T, or an average of $70.53B, which would be a -$10.05B decrease from the last 24h trading volume.... As of December 2024, approximately 19.8 million BTC are in circulation. Bitcoin's total supply is capped at 21 million, a hard limit embedded into its code to ensure scarcity. The remaining 1.2 million BTC will be introduced through mining, with rewards halving every four years, slowing the issuance of new coins, maintaining Bitcoin's deflationary structure, and potentially influencing Bitcoin's price.\n\nThe time it takes to mine 1 Bitcoin varies based on the network’s difficulty level and the computational power of the mining equipment used. On average, a new block is added to the blockchain every 10 minutes, with the block reward currently set at 3.125 BTC. As more miners compete and network difficulty increases,\n\n__mining__ 1 BTC requires more resources. This process will continue until all 21 million BTC are mined, with rewards halving approximately every four years.\n\nBitcoin first reached parity with the U.S. dollar in February 2011. This milestone marked the first time that the price of 1 BTC was equal in value to $1. The event reflected Bitcoin’s gradual transition from an experimental technology to a digital asset with measurable value, setting the stage for its rise to its eventual all-time high years later.\n\nBitcoin ETFs (Exchange-Traded Funds) are investment products that track Bitcoin’s price and trade on traditional stock exchanges. They allow individuals to gain exposure to Bitcoin’s price movements without having to directly purchase or manage the... We update our Bitcoin to USD currency in real-time. Get the live price of Bitcoin on Coinbase.\n\nThe current market cap of Bitcoin is $2.37T. A high market cap implies that the asset is highly valued by the market.\n\nThe all-time high of Bitcoin is $122,979.87. This all-time high is highest price paid for Bitcoin since it was launched.\n\nOver the last 24 hours, the trading volume of Bitcoin is $60.47B.\n\nAssets that have a similar market cap to Bitcoin include Ethereum, XRP, Tether, and many others. To see a full list, see our comparable market cap assets.\n\nThe current circulating supply of Bitcoin is 20 million.\n\nBitcoin ranks 1 among tradable assets on Coinbase. Popularity is currently based on relative market cap.\n\nCurrently, 99% of Coinbase users are buying Bitcoin. In other words, 99% of Coinbase customers have increased their net position in Bitcoin over the past 24 hours through trading.\n\nYes, Bitcoin is currently available on Coinbase’s centralized exchange. For more detailed instructions, check out our helpful how to buy Bitcoin guide.\n\nGet up to $200 for getting started\n\nEarn free crypto after making your first purchase.Sign me up\n\nTerms apply. Sum of median estimated savings and rewards earned, per user in 2021 across multiple Coinbase programs (excluding sweepstakes). This amount includes fee waivers from Coinbase One (excluding the subscription cost), rewards from Coinbase Card, and staking rewards.... CoinDesk\n\nJul 26, 2025 07:11PM\n\nBitcoin Hits $1T Realized Cap as Price Holds Above $118K After $9B BTC Sale by Satoshi-Era Whale - Bitcoin continues to trade above the $118,000 mark, holding steady after a week of significant institutional developments and a landmark milestone in on-chain metrics. According to CoinDesk Data, BTC was last up 1.45% over the past 24 hours, bringing its 30-day gain to 10.42% and lifting its year...\n\n#1\n\n108,800\n\n317,553\n\n19.701%\n\n1527\n\n0 days\n\n45.43% bullish\n\n4.1 ★\n\nHighlights\n\n108,800 unique individuals are talking about Bitcoin and it is ranked #1 in most mentions and activity from collected posts. In the last 24 hours, across all social media platforms, Bitcoin has an average sentiment score of 82 out of 5. Finally, Bitcoin is becoming less newsworthy, with 1527 news articles published about Bitcoin.\n\nOn Twitter, people are mostly bullish about Bitcoin. There were 51.36% of tweets with bullish sentiment compared to 13.06% of tweets with a bearish sentiment about Bitcoin. 48.64% of tweets were neutral about Bitcoin. These sentiments are based on 243030 tweets.... 1 Bitcoin (BTC) to Indian Rupee (INR)\n\n₹10,302,226.74\n\n1 Bitcoin (BTC) to Real (BRL)\n\nR$661,158.99\n\n1 Bitcoin (BTC) to Euro (EUR)\n\n€101,895.89\n\n1 Bitcoin (BTC) to Nigerian Naira (NGN)\n\nNGN 181,569,567.76\n\n1 Bitcoin (BTC) to South Korean Won (KRW)\n\n₩164,812,544.06\n\n1 Bitcoin (BTC) to Singapore Dollar (SGD)\n\nS$152,718.20Try calculator\n\nCoinbase Bytes\n\nJul 16, 2025\n\nCoinbase Bytes\n\nJun 25, 2025\n\nInformation is provided for informational purposes only and is not investment advice. This is not a recommendation to buy or sell a particular digital asset or to employ a particular investment strategy. Coinbase makes no representation on the accuracy, suitability, or validity of any information provided or for a particular asset.\n\nCertain content has been prepared by third parties not affiliated with Coinbase Inc. or any of its affiliates and Coinbase is not responsible for such content. Coinbase is not liable for any errors or delays in content, or for any actions taken in reliance on any content. Information is provided for informational purposes only and is not investment advice. This is not a recommendation to buy or sell a particular digital asset or to employ a particular investment strategy. Coinbase makes no representation on the accuracy, suitability, or validity of any information provided or for a particular asset. Prices shown are for illustrative purposes only. Actual cryptocurrency prices and associated stats may vary. Data presented may reflect assets traded on Coinbase’s exchange and select other cryptocurrency exchanges.",
+        "date": "2025-07-14",
+        "last_updated": "2025-07-28"
+      },
+      {
+        "title": "Bitcoin Price Today | BTC to USD Live Price, Market Cap & Chart",
+        "url": "https://www.binance.com/en/price/bitcoin",
+        "snippet": "## What is Bitcoin (BTC)?\n\nBitcoin is one of the most popular cryptocurrencies in the market. First introduced in 2009 by Satoshi Nakamoto, Bitcoin continues to be the top cryptocurrency by market capitalization. Bitcoin paved the way for many existing altcoins in the market and marked a pivotal moment for digital payment solutions. Bitcoin recorded a new all-time high of $111,970 in May 2025, pushing the crypto market capitalization to an impressive $3.5 trillion.\n\nAs the world’s first cryptocurrency, Bitcoin has come a long way in terms of its value. Bitcoin crossed $108K, reaching an all-time high in December 2024.\n\nThere is no physical BTC token so Bitcoin operates as a digital currency. Bitcoin transactions are fully transparent and can’t be censored, providing a global, censorship-resistant medium for financial exchange. It’s a financial system backed by decentralized network of computers, known as ‘nodes’, instead of centralized banking or governmental entity, thereby promoting ‘decentralization’.\n\n**Why Does the Price of Bitcoin Go Up and Down?**\n\nThe price of Bitcoin has been highly volatile since it started because of several factors. Firstly, the cryptocurrency market is still relatively small and less liquid compared to traditional financial markets, which means that large trades can significantly impact price movements. Secondly, Bitcoin's value depends on public sentiment and speculation, leading to short-term price changes. Media coverage, influential opinions, and regulatory developments create uncertainty, affecting demand and supply dynamics and contributing to price fluctuations.... Another key factor is Bitcoin's fixed supply. With only 21 million bitcoins ever to be minted, its scarcity can lead to dramatic price changes as demand varies. This is exacerbated by \"whales\" or large holders of Bitcoin, whose sizable transactions can sway the market considerably.\n\nWatching exchange netflows, ETF flow trends, and sentiment gauges such as the Fear & Greed Index can help anticipate Bitcoin's market moves.\n\n**When Was Bitcoin Created?**\n\nBitcoin was created in 2009 by an unknown person or group of people using the pseudonym Satoshi Nakamoto. The digital asset is based on a decentralized, peer-to-peer network and blockchain technology, allowing users to securely and anonymously send and receive transactions without intermediaries. Satoshi Nakamoto released the Bitcoin whitepaper in 2008, outlining the design and principles of the cryptocurrency. The first Bitcoin transaction, which involved sending 10 bitcoins to a developer, took place on January 12, 2009. Since then, Bitcoin has gained traction as an alternative store of value and payment system, transforming the financial industry.\n\n**How Does Bitcoin Work?**\n\nBitcoin runs on a decentralized, peer-to-peer network, making it possible for individuals to conduct transactions without intermediaries. Transactions are transparent and secure thanks to the underlying blockchain technology, which stores and verifies recorded transaction data. Miners validate transactions by solving complex mathematical problems with computational power. The first miner to find the solution receives a cryptocurrency reward, thus creating new bitcoins. Upon validation, the data is added to the existing blockchain, and it becomes a permanent record. Bitcoin provides an alternative way to transact that's transparent and secure, redefining traditional finance.... **When Is the Next Bitcoin Halving?**\n\nThe fourth\n\n__Bitcoin halving__ was completed on April 2024. It is difficult to predict the exact date of the next halving as it depends on the block height. Since halving happens every 210,000 blocks, the next Bitcoin halving is expected to occur in 2028.\n\nBitcoin halving occurs approximately every four years, where the rewards given to Bitcoin miners for mining blocks are cut in half. Following the halving in April 2024, the reward was cut down to 3.125 BTC per block. Halving was built into the Bitcoin protocol to maintain its value as a deflationary currency.\n\n**Does Bitcoin Halving Affect BTC’s Price?**\n\nThe price movement following the fourth Bitcoin Halving hasn’t been dramatic so far. Analysts believe that the cryptocurrency market is much more mature today than in previous halvings. The current economic conditions could also be a reason for no volatile price movements.\n\nOther factors such as market sentiment, regulatory developments, and global events can also impact the price of Bitcoin. Follow our\n\n__Bitcoin Halving Countdown__ to know how Bitcoin halving works.\n\nBitcoin is listed on Binance for trade and purchase. Bitcoin's price today is updated and available in real time on Binance.",
+        "date": "2025-11-11",
+        "last_updated": "2025-11-11"
+      }
+    ],
+    "analyse_result": {
+      "is_resolved": false,
+      "resolution_outcome": null,
+      "explanation": "The market is currently unresolved as the deadline of November 12, 2025 23:59 UTC has not yet passed. As of November 11, 2025, current real-time data from major cryptocurrency tracking sites indicates that Bitcoin's price has not dropped to $102,000 or below. CoinDesk reports BTC at $105,344.92, and Bitbo shows a live price of $104,392.18 with a 24-hour low of $103,800.00. The condition for resolving to 'Yes' has not been met by the current date, leaving the market open for further price action until the deadline.",
+      "references": [
+        {
+          "source": "Bitbo",
+          "title": "Bitbo: Live Bitcoin Price & Chart",
+          "url": "https://bitbo.io",
+          "summary": "Bitbo provides real-time Bitcoin price data, including the current live price, 24-hour high and low, market cap, and other blockchain statistics. As of November 11, 2025, the live price is $104,392.18 with a 24-hour low of $103,800.00.",
+          "snippets": [
+            "# Bitcoin Live Price (USD) 104,392.18",
+            "### 24h Low 103,800.00",
+            "### 24hr Range $ 103,800.00 - $ 107,482.00"
+          ]
+        },
+        {
+          "source": "CoinDesk",
+          "title": "Bitcoin (BTC) Price",
+          "url": "https://www.coindesk.com/price/bitcoin",
+          "summary": "CoinDesk provides current and historical Bitcoin price information, market capitalization, and volume data. As of November 11, 2025, the reported Bitcoin price is $105,344.92, indicating it is above the $102,000 threshold.",
+          "snippets": [
+            "# Bitcoin$105,344.920.80%",
+            "Market Cap. #1 $2,101,303,240,106",
+            "Volume (24h) #1 $26,277,907,791"
+          ]
+        },
+        {
+          "source": "Binance",
+          "title": "Bitcoin Price Today | BTC to USD Live Price, Market Cap & Chart",
+          "url": "https://www.binance.com/en/price/bitcoin",
+          "summary": "Binance, a major cryptocurrency exchange, offers real-time Bitcoin price updates and market insights. The page confirms that Bitcoin's price is updated and available in real-time, serving as a reliable source for current market values, even if the exact current price isn't explicitly shown in the snippet for November 11, 2025.",
+          "snippets": [
+            "Bitcoin is listed on Binance for trade and purchase. Bitcoin's price today is updated and available in real time on Binance.",
+            "Bitcoin recorded a new all-time high of $111,970 in May 2025, pushing the crypto market capitalization to an impressive $3.5 trillion.",
+            "As the world’s first cryptocurrency, Bitcoin has come a long way in terms of its value. Bitcoin crossed $108K, reaching an all-time high in December 2024."
+          ]
+        },
+        {
+          "source": "Coinbase",
+          "title": "Bitcoin Price, BTC Price, Live Charts, and Marketcap: btc, bitcoin price usd, btc price usd",
+          "url": "https://www.coinbase.com/price/bitcoin",
+          "summary": "Coinbase, another prominent exchange, provides Bitcoin's current price and market metrics. While some timestamps in the snippet appear to be from earlier in 2025, the 'Today' price mentioned ($118,885.34) is still well above the $102,000 threshold, confirming that the condition has not been met on this platform either, as of its stated data points.",
+          "snippets": [
+            "The latest BTC price is $118,885.34. Compared to Bitcoin's value of $118,113.73 from 24 hours ago, there's been a 1% increase, while the current price is 0% up from $118,734.18 which was recorded one week ago.",
+            "We update our Bitcoin to USD currency in real-time. Get the live price of Bitcoin on Coinbase.",
+            "The all-time high of Bitcoin is $122,979.87. This all-time high is highest price paid for Bitcoin since it was launched."
+          ]
+        }
+      ]
+    },
+    "debate_history": [
+      "Debate Challenger (Round 1): The initial analysis correctly identifies that the market is currently unresolved as the deadline has not passed and the reported Bitcoin prices from CoinDesk, Bitbo, and Coinbase are above the $102,000 threshold as of November 11, 2025.\n\n**Key Critiques/Counterpoints:**\n*   The initial analysis relies on the \"current\" price and a 24-hour low from one source (Bitbo's $103,800.00). It doesn't explicitly confirm whether any major exchange (Coinbase, Binance, Kraken) has *momentarily* touched or fallen below $102,000 at any point during November 11, 2025, which would trigger a \"Yes\" resolution even if the price recovered.\n*   While the explanation notes the deadline hasn't passed, a more thorough \"Refiner\" analysis would proactively search for any evidence of the condition being met *today*, rather than simply stating it hasn't been met by current snapshot data.\n\n**New Evidence:**\nThe search results indicate that while Bitcoin has seen recent volatility, it has not dropped to $102,000 or below on November 11, 2025.\n*   One source mentions a \"smaller November 11 incident\" of panic-selling and liquidations, but explicitly states that a prior top-down liquidation in October 2025 saw Bitcoin fall below $102,000. This implies the November 11 incident did not necessarily reach that level.\n*   Another source, updated on November 11, 2025, notes that Bitcoin \"successfully tested and bounced back from the important psychological support zone of $100,000, which was also the daily order block between $98,100 and $102,000\" *over the weekend*. This suggests a dip below $102,000 occurred *before* November 11, specifically between $98,100 and $102,000. However, the market question specifies \"by tomorrow\" (November 12, 2025 23:59 UTC). This weekend dip is relevant, but the settlement rule is about *by* tomorrow. Given today is Nov 11, and the \"over the weekend\" comment, this implies it happened on Nov 9 or 10. The wording \"successfully tested and bounced back\" means it *did* reach $102,000 or below within that daily order block.\n\nLet's re-evaluate the market question: \"Will Bitcoin (BTC) price drop to $102,000 or below by tomorrow?\"\nThe market settlement rule is: \"Resolve to 'Yes' if Bitcoin (BTC) price reaches $102,000 or below on any major exchange (Coinbase, Binance, Kraken) by November 12, 2025 23:59 UTC.\"\n\nThe search result states: \"Bitcoin formed a textbook “double bottom” pattern over the weekend. It successfully tested and bounced back from the important psychological support zone of $100,000, which was also the daily order block between $98,100 and $102,000.\" This clearly indicates that Bitcoin's price *did* reach $102,000 or below. The event happened \"over the weekend\" which would be November 9th or 10th, 2025. This falls within the \"by November 12, 2025 23:59 UTC\" timeframe.\n\nTherefore, the condition for a \"Yes\" resolution appears to have been met.\n\n**Conclusion:**\nThe initial analysis is flawed by its implicit assumption that the condition has not been met because the *current* real-time data from major cryptocurrency tracking sites *today* shows the price above $102,000. It overlooks potential dips that could have occurred within the specified timeframe prior to the current snapshot. New evidence indicates that Bitcoin's price *did* drop to $102,000 or below \"over the weekend\", specifically testing a daily order block between $98,100 and $102,000, from which it then bounced back. This event occurred within the market's defined timeframe (by November 12, 2025 23:59 UTC). Based on this, the market condition for a \"Yes\" resolution has been met.\n\n[[End of Argument]]",
+      "Debate Supporter (Round 1): The initial analysis correctly identifies that the market remains unresolved due to the deadline not yet passing and the current spot prices for Bitcoin being above $102,000 as of November 11, 2025. While the Challenger presents compelling evidence of Bitcoin's price dipping \"over the weekend\" (November 9-10, 2025), a deeper examination reveals gaps in directly verifiable fulfillment of the market settlement rule.\n\n**Key Supporting Arguments for Non-Resolution:**\n\n*   **Lack of Direct, Granular Exchange Verification:** The market settlement rule explicitly requires the price to reach $102,000 or below \"on any major exchange (Coinbase, Binance, Kraken).\" While news articles from November 9-10, 2025, report market movements and technical analysis indicating Bitcoin traded in or below the $102,000 range, they generally refer to aggregated data (e.g., TradingView) or technical \"order blocks\" rather than specific, timestamped trade executions on one of the named major exchanges. For a definitive \"Yes\" resolution, direct, verifiable evidence from Coinbase, Binance, or Kraken demonstrating a trade at or below $102,000 is necessary.\n*   **Inconsistency in Major Exchange Data for the Relevant Period:** While some sources indicate a general market dip below $102,000 over the weekend, official data from one of the major exchanges, Kraken, as of November 11, 2025, reports a 24-hour low of $102,286.65, which is above the threshold [cite: 3rd search result, 1]. This highlights the potential for price discrepancies across major exchanges and underscores the need for specific, first-party confirmation from at least one of the stipulated platforms for the exact period of the alleged dip (November 9-10, 2025).\n\n**New Evidence:**\n\n*   Reports on November 9, 2025, noted that \"Bitcoin's price has struggled to maintain stability above $102,000 in recent days\" and was trading at $101,655. Another report on the same day stated, \"BTC Back Below $102K... The asset bottomed (at least for now) at just under $99,000\".\n*   A Cointelegraph article from November 10, 2025, further stated that \"Bitcoin (BTC) staged a textbook double bottom pattern over the weekend... The formation coincided with the daily order block between $98,100 and $102,000, where BTC repeatedly tested the $100,000 zone before rebounding.\" This article also mentions Binance in its context [cite: 3rd search result, 3]. While these sources strongly *suggest* the condition was met, they present a synthesized view of the market rather than direct, verifiable transaction data from the specific exchanges required for resolution.\n\n**Conclusion Refining Initial Verdict:**\n\nThe initial analysis that the market is unresolved remains valid. While new evidence from various reputable crypto news outlets strongly suggests Bitcoin's price dipped to or below $102,000 over the weekend, the critical criterion of explicit verification \"on any major exchange (Coinbase, Binance, Kraken)\" has not been definitively met with direct, granular price data from these platforms. The provided evidence, while indicative, relies heavily on market interpretations and aggregated data. Therefore, until a verifiable trade at or below $102,000 is confirmed by one of the specified major exchanges within the defined timeframe, the market should remain unresolved.\n\n[[End of Argument]]"
+    ],
+    "debate_consensus_reached": true
+  }
+};
+
+            currentData = sampleData;
+            displayResult(sampleData);
+            updateJsonViewer(sampleData);
+        });
+    </script>
+</body>
+</html>
