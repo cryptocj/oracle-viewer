@@ -94,6 +94,34 @@
             --line-height-base: 1.6;
         }
 
+        /* Utility Classes */
+        .gradient-primary {
+            background: var(--color-bg-primary);
+        }
+
+        .btn-base {
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-semibold);
+            transition: var(--transition-base);
+            padding: var(--spacing-md) var(--spacing-xl);
+            height: fit-content;
+        }
+
+        .btn-hover-lift:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-shadow {
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-shadow:hover {
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -238,10 +266,15 @@
 
         .input-group {
             display: grid;
-            grid-template-columns: 1fr 1fr auto;
+            grid-template-columns: 1fr auto;
             gap: 20px;
             margin-bottom: 24px;
             align-items: end;
+        }
+
+        .input-full-width {
+            grid-column: 1 / -1;
+            margin-bottom: 24px;
         }
 
         .input-wrapper {
@@ -258,7 +291,9 @@
             letter-spacing: 0.025em;
         }
 
-        .input-group input {
+        .input-wrapper input,
+        .input-wrapper textarea {
+            width: 100%;
             padding: 16px 20px;
             border: 2px solid #e2e8f0;
             border-radius: 12px;
@@ -267,9 +302,12 @@
             transition: all 0.3s ease;
             background: white;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            font-family: var(--font-family);
+            resize: vertical;
         }
 
-        .input-group input:focus {
+        .input-wrapper input:focus,
+        .input-wrapper textarea:focus {
             outline: none;
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
@@ -277,22 +315,7 @@
         }
 
         .btn {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            border: none;
-            padding: 16px 32px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 14px rgba(102, 126, 234, 0.4);
-            height: fit-content;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+            color: var(--color-white);
         }
 
         .btn:disabled {
@@ -1257,26 +1280,22 @@
                     <span id="env-endpoint">localhost:80</span>
                 </div>
             </div>
+            <div class="input-wrapper input-full-width">
+                <label class="input-label">Market Question</label>
+                <input type="text" id="marketQuestion" placeholder="What is your prediction market question?" value="Will Bitcoin (BTC) price drop to $102,000 tomorrow?">
+            </div>
+            <div class="input-wrapper input-full-width">
+                <label class="input-label">Settlement Rule</label>
+                <textarea id="settlementRule" placeholder="Define the resolution criteria..." rows="3">Resolve to 'Yes' if Bitcoin (BTC) price reaches $102,000 or below on any major exchange (Coinbase, Binance, Kraken) by November 12, 2025 23:59 UTC. Resolve to 'No' if price remains above $102,000.</textarea>
+            </div>
             <div class="input-group">
-                <div class="input-wrapper">
-                    <label class="input-label">Market ID</label>
-                    <input type="number" id="marketId" placeholder="Enter market ID (e.g., 123)" value="123">
-                </div>
-                <div class="input-wrapper">
-                    <label class="input-label">Market Question</label>
-                    <input type="text" id="marketQuestion" placeholder="What is your prediction market question?" value="Will Bitcoin (BTC) price drop to $102,000 tomorrow?">
-                </div>
                 <div class="btn-group">
-                    <button class="btn" onclick="fetchResolution()">🚀 Resolve Market</button>
+                    <button class="btn btn-base gradient-primary btn-shadow btn-hover-lift" onclick="fetchResolution()">🚀 Resolve Market</button>
                     <button class="btn-outline" onclick="exportData()">📥 Export JSON</button>
                     <button class="btn-outline" onclick="importData()">📤 Import JSON</button>
                 </div>
             </div>
             <input type="file" id="fileInput" class="hidden" accept=".json" onchange="handleFileImport(event)">
-            <div class="input-wrapper" style="margin-bottom: 0;">
-                <label class="input-label">Settlement Rule</label>
-                <input type="text" id="settlementRule" placeholder="Define the resolution criteria..." value="Resolve to 'Yes' if Bitcoin (BTC) price reaches $102,000 or below on any major exchange (Coinbase, Binance, Kraken) by November 12, 2025 23:59 UTC. Resolve to 'No' if price remains above $102,000." style="width: 100%;">
-            </div>
         </div>
 
         <div class="content">
@@ -1300,6 +1319,13 @@
     </div>
 
     <script>
+        // Application constants
+        const CONFIG = {
+            DEFAULT_MARKET_ID: 123,
+            ANIMATION_DURATION: 300,
+            DEBATE_ROUNDS_DIVISOR: 2
+        };
+
         let currentData = null;
         let currentEnvironment = 'local';
 
@@ -1325,7 +1351,6 @@
             // Update endpoint display
             document.getElementById('env-endpoint').textContent = environments[env].endpoint;
 
-            console.log(`Switched to ${env} environment: ${environments[env].url}`);
         }
 
         function switchTab(tab) {
@@ -1337,11 +1362,11 @@
         }
 
         async function fetchResolution() {
-            const marketId = document.getElementById('marketId').value;
+            const marketId = CONFIG.DEFAULT_MARKET_ID;
             const marketQuestion = document.getElementById('marketQuestion').value;
             const settlementRule = document.getElementById('settlementRule').value;
 
-            if (!marketId || !marketQuestion || !settlementRule) {
+            if (!marketQuestion || !settlementRule) {
                 showError('Please fill in all fields');
                 return;
             }
@@ -1351,7 +1376,6 @@
 
             try {
                 const apiUrl = `${environments[currentEnvironment].url}/oracle/market/resolve`;
-                console.log(`Making API request to: ${apiUrl}`);
 
                 const response = await fetch(apiUrl, {
                     method: 'POST',
@@ -1574,7 +1598,7 @@
                                     }
                                 </div>
                                 <button class="expand-toggle collapsed" onclick="toggleExpand('debate-history')">
-                                    View Debate History (${data.resolution_trace.debate_history.length / 2} rounds)
+                                    View Debate History (${Math.floor(data.resolution_trace.debate_history.length / CONFIG.DEBATE_ROUNDS_DIVISOR)} rounds)
                                 </button>
                                 <div id="debate-history" class="expand-content">
                                     ${data.resolution_trace.debate_history.map((entry, index) => {
@@ -1585,7 +1609,7 @@
                                         return `
                                             <div class="debate-entry ${isChallenger ? 'challenger' : 'supporter'}">
                                                 <div class="debate-role">
-                                                    ${isChallenger ? '🔴' : '🟢'} Debate ${role} (Round ${Math.floor(index/2) + 1})
+                                                    ${isChallenger ? '🔴' : '🟢'} Debate ${role} (Round ${Math.floor(index/CONFIG.DEBATE_ROUNDS_DIVISOR) + 1})
                                                 </div>
                                                 <div class="debate-content">${marked.parse(content)}</div>
                                             </div>
@@ -1747,9 +1771,6 @@
                         currentData = data;
 
                         // Populate form fields from the resolution data
-                        if (data.market_id) {
-                            document.getElementById('marketId').value = data.market_id;
-                        }
                         if (data.question) {
                             document.getElementById('marketQuestion').value = data.question;
                         }
@@ -1758,7 +1779,6 @@
                         displayResult(data);
                         updateJsonViewer(data);
 
-                        console.log('Oracle resolution data imported successfully');
                     } else {
                         // Try to handle legacy format (form data with nested resolution_data)
                         if (data.resolution_data) {
@@ -1767,9 +1787,6 @@
                             updateJsonViewer(data.resolution_data);
 
                             // Populate form fields from container
-                            if (data.market_id) {
-                                document.getElementById('marketId').value = data.market_id;
-                            }
                             if (data.question) {
                                 document.getElementById('marketQuestion').value = data.question;
                             }
@@ -1780,7 +1797,6 @@
                                 selectEnvironment(data.environment);
                             }
 
-                            console.log('Legacy format imported successfully');
                         } else {
                             showError('This JSON file does not appear to contain oracle resolution data.');
                         }
