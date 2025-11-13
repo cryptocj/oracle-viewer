@@ -1336,6 +1336,59 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        /* Collapsible market section styles */
+        .market-table-header {
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            background: var(--color-bg-card);
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            border: 1px solid var(--color-border-light);
+        }
+
+        .market-table-header:hover {
+            background: var(--color-bg-light);
+        }
+
+        .collapse-icon {
+            transition: transform 0.3s ease;
+            font-size: 1.2rem;
+            color: var(--color-text-muted);
+        }
+
+        .collapse-icon.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .market-table-content {
+            transition: all 0.3s ease;
+            overflow: hidden;
+            background: var(--color-bg-card);
+            border: 1px solid var(--color-border-light);
+            border-top: none;
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+            padding: 20px;
+        }
+
+        .market-table-content.collapsed {
+            max-height: 0;
+            border: none;
+            padding: 0;
+        }
+
+        .market-table {
+            background: transparent;
+            border: none;
+            border-radius: 0;
+            box-shadow: var(--shadow-lg);
+            margin-bottom: var(--spacing-xl);
+            overflow: hidden;
+        }
+
         .markets-table {
             width: 100%;
             border-collapse: collapse;
@@ -1431,20 +1484,22 @@
         </div>
 
         <div class="market-table">
-            <div class="market-table-header">
+            <div class="market-table-header" onclick="toggleMarketTable()">
                 <h3>📈 Select Market to Resolve</h3>
+                <span class="collapse-icon">▼</span>
             </div>
 
-            <!-- Category Tabs -->
-            <div class="market-tabs">
+            <div class="market-table-content">
+                <!-- Category Tabs -->
+                <div class="market-tabs">
                 <button class="market-tab active" onclick="switchMarketCategory(1)">
-                    🪙 Cryptocurrency
+                    🪙 Crypto
                 </button>
                 <button class="market-tab" onclick="switchMarketCategory(2)">
                     💼 Finance
                 </button>
                 <button class="market-tab" onclick="switchMarketCategory(4)">
-                    💻 Technology
+                    💻 Politics
                 </button>
             </div>
 
@@ -1499,18 +1554,19 @@
                     </table>
                 </div>
             </div>
+            </div>
         </div>
 
         <div class="input-section">
             <div class="env-selector">
                 <label>Environment:</label>
                 <div class="env-toggle">
-                    <button class="env-option active" onclick="selectEnvironment('local')">Local</button>
-                    <button class="env-option" onclick="selectEnvironment('staging')">Staging</button>
+                    <button class="env-option" onclick="selectEnvironment('local')">Local</button>
+                    <button class="env-option active" onclick="selectEnvironment('staging')">Staging</button>
                 </div>
                 <div class="env-info">
                     <div class="env-status"></div>
-                    <span id="env-endpoint">localhost:80</span>
+                    <span id="env-endpoint">zsta-delphi-service.crorc.co</span>
                 </div>
             </div>
             <div class="input-wrapper input-full-width">
@@ -1519,7 +1575,7 @@
             </div>
             <div class="input-wrapper input-full-width">
                 <label class="input-label">Settlement Rule</label>
-                <textarea id="settlementRule" placeholder="Define the resolution criteria..." rows="3">Resolve to 'Yes' if Bitcoin (BTC) price reaches $102,000 or below on any major exchange (Coinbase, Binance, Kraken) by November 12, 2025 23:59 UTC. Resolve to 'No' if price remains above $102,000.</textarea>
+                <textarea id="settlementRule" placeholder="Define the resolution criteria..." rows="5">Resolve to 'Yes' if Bitcoin (BTC) price reaches $102,000 or below on any major exchange (Coinbase, Binance, Kraken) by November 12, 2025 23:59 UTC. Resolve to 'No' if price remains above $102,000.</textarea>
             </div>
             <div class="input-group">
                 <div class="btn-group">
@@ -1560,7 +1616,7 @@
         };
 
         let currentData = null;
-        let currentEnvironment = 'local';
+        let currentEnvironment = 'staging';
         let marketsData = [];
         let selectedMarketId = null;
 
@@ -1804,11 +1860,7 @@
             // Populate form fields
             document.getElementById('marketQuestion').value = market.title;
 
-            // Generate a basic settlement rule from description
-            const shortDesc = market.description.length > 200
-                ? market.description.substring(0, 200) + '...'
-                : market.description;
-            document.getElementById('settlementRule').value = shortDesc;
+            document.getElementById('settlementRule').value = market.description;
         }
 
         function formatNumber(num) {
@@ -2200,6 +2252,19 @@
             } else {
                 element.classList.add('show');
                 button.classList.remove('collapsed');
+            }
+        }
+
+        function toggleMarketTable() {
+            const content = document.querySelector('.market-table-content');
+            const icon = document.querySelector('.collapse-icon');
+
+            if (content.classList.contains('collapsed')) {
+                content.classList.remove('collapsed');
+                icon.classList.remove('collapsed');
+            } else {
+                content.classList.add('collapsed');
+                icon.classList.add('collapsed');
             }
         }
 
