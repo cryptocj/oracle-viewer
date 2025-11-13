@@ -122,6 +122,115 @@
             box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
         }
 
+        .market-table {
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .market-table-header {
+            background: var(--color-bg-primary);
+            color: var(--color-white);
+            padding: var(--spacing-lg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-container {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .market-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .market-table th {
+            background: var(--color-bg-section);
+            color: var(--color-text-primary);
+            padding: var(--spacing-md);
+            text-align: left;
+            font-weight: var(--font-weight-semibold);
+            font-size: var(--font-size-sm);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .market-table td {
+            padding: var(--spacing-md);
+            border-bottom: 1px solid var(--color-border-light);
+            font-size: var(--font-size-sm);
+        }
+
+        .market-table tr:hover {
+            background: var(--color-bg-light);
+        }
+
+        .market-row {
+            cursor: pointer;
+            transition: var(--transition-base);
+        }
+
+        .market-row.selected {
+            background: var(--color-info) !important;
+        }
+
+        .market-title {
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .market-description {
+            color: var(--color-text-secondary);
+            line-height: 1.4;
+            max-width: 500px;
+            font-size: var(--font-size-sm);
+        }
+
+        .market-volume {
+            color: var(--color-success);
+            font-weight: var(--font-weight-medium);
+        }
+
+        .market-id {
+            color: var(--color-text-muted);
+            font-family: var(--font-family-mono);
+        }
+
+        .refresh-btn {
+            background: var(--color-white);
+            color: var(--color-primary);
+            border: 2px solid var(--color-white);
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            transition: var(--transition-base);
+        }
+
+        .refresh-btn:hover {
+            background: rgba(255,255,255,0.9);
+            transform: translateY(-1px);
+        }
+
+        .loading-markets {
+            padding: var(--spacing-xl);
+            text-align: center;
+            color: var(--color-text-muted);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -1180,6 +1289,59 @@
             display: block;
         }
 
+        /* Market category styles */
+        .market-tabs {
+            display: flex;
+            border-bottom: 2px solid #e9ecef;
+            margin: 20px 0;
+            gap: 8px;
+        }
+
+        .market-tab {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            color: #6c757d;
+            transition: all 0.3s ease;
+            border-radius: 8px 8px 0 0;
+            font-weight: 500;
+        }
+
+        .market-tab:hover {
+            color: #667eea;
+            background: #f8fafc;
+        }
+
+        .market-tab.active {
+            color: #667eea;
+            background: #f8fafc;
+            border-bottom: 2px solid #667eea;
+            margin-bottom: -2px;
+            font-weight: 600;
+        }
+
+        .category-content {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .category-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .markets-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
         .json-viewer {
             background: #2d3748;
             color: #e2e8f0;
@@ -1268,6 +1430,77 @@
             </div>
         </div>
 
+        <div class="market-table">
+            <div class="market-table-header">
+                <h3>📈 Select Market to Resolve</h3>
+            </div>
+
+            <!-- Category Tabs -->
+            <div class="market-tabs">
+                <button class="market-tab active" onclick="switchMarketCategory(1)">
+                    🪙 Cryptocurrency
+                </button>
+                <button class="market-tab" onclick="switchMarketCategory(2)">
+                    💼 Finance
+                </button>
+                <button class="market-tab" onclick="switchMarketCategory(4)">
+                    💻 Technology
+                </button>
+            </div>
+
+            <div class="table-container">
+                <div id="markets-loading" class="loading-markets">
+                    <div class="spinner"></div>
+                    <p>Loading market data...</p>
+                </div>
+
+                <!-- Category 1: Cryptocurrency -->
+                <div id="category-1" class="category-content active">
+                    <table class="markets-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 80px;">ID</th>
+                                <th style="width: 300px;">Market Title</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody id="markets-tbody-1">
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Category 2: Finance -->
+                <div id="category-2" class="category-content">
+                    <table class="markets-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 80px;">ID</th>
+                                <th style="width: 300px;">Market Title</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody id="markets-tbody-2">
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Category 4: Technology -->
+                <div id="category-4" class="category-content">
+                    <table class="markets-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 80px;">ID</th>
+                                <th style="width: 300px;">Market Title</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody id="markets-tbody-4">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
         <div class="input-section">
             <div class="env-selector">
                 <label>Environment:</label>
@@ -1328,6 +1561,8 @@
 
         let currentData = null;
         let currentEnvironment = 'local';
+        let marketsData = [];
+        let selectedMarketId = null;
 
         // Environment configuration
         const environments = {
@@ -1340,6 +1575,248 @@
                 url: 'https://zsta-delphi-service.crorc.co'
             }
         };
+
+        // Real market data from Delphi API (embedded to avoid CORS issues)
+        const staticMarketsByCategory = {
+                "1": {
+                        "name": "Cryptocurrency",
+                        "markets": [
+                                {
+                                        "id": 6,
+                                        "title": "Will CRO reach ATH in 2025?",
+                                        "description": "This market will resolve immediately to 'Yes' if any Crypto.com exchange 1 minute candle for CRO/USD before 0:00 AM in the UTC timezone (first second of the day)  on January 1, 2026 'Close' price is higher or equal $0.9698 USD. Otherwise this market will resolve to 'No'.\n\nThe resolution source for this market is Crypto.com exchange, specifically the CRO/USD 'Close' prices currently available at https://crypto.com/exchange/trade/CRO_USD on the Market Chart widget with '1m' and 'Candles' selected on the top bar.\n\nPlease note that this market is about the price according to Crypto.com Exchange CRO/USD, not according to other sources or spot markets.\n\nPrice precision is determined by the number of decimal places in the source.",
+                                        "category_id": 1
+                                },
+                                {
+                                        "id": 11,
+                                        "title": "Will $CRO reach $2.12 before April, 2026",
+                                        "description": "This market will resolve immediately to \"Yes\" if any Crypto.com exchange 1 minute candle for CRO/USD before 0:00 AM in the UTC timezone (first second of the day) on April 1, 2026 \"Close\" price is higher or equal $2.12 USD. Otherwise this market will resolve to \"No\".\n\nThe resolution source for this market is Crypto.com exchange, specifically the CRO/USD \"Close\" prices currently available at https://crypto.com/exchange/trade/CRO_USD on the Market Chart widget with \"1m\" and \"Candles\" selected on the top bar.\n\nPlease note that this market is about the price according to Crypto.com Exchange CRO/USD, not according to other sources or spot markets.\n\nPrice precision is determined by the number of decimal places in the source.",
+                                        "category_id": 1
+                                },
+                                {
+                                        "id": 73,
+                                        "title": "Will $Link hit $28 before Nov 25?",
+                                        "description": "This market will resolve to 'Yes' if any 1-hour candle 'Close' price of Chainlink (LINK)/ USD shown on CoinMarketCap is $28 USD or higher at any time between 00:00 AM UTC on October 14, 2025 and 00:00 AM UTC on November 25, 2025 (first second of the day).\nOtherwise this market will resolve to 'No'. The resolution source for this market is CoinMarketCap LINK/USD chart: https://coinmarketcap.com/currencies/chainlink/. No other data sources will be considered. If the required data from CoinMarketCap is unavailable at settle time, this market will resolve to 'No'. Price precision is determined by the number of decimal places in the source.",
+                                        "category_id": 1
+                                },
+                                {
+                                        "id": 110,
+                                        "title": "What total global trading volume will Wolfies reach on Dec 1, 2025, 12AM UTC?",
+                                        "description": "This market will resolve based on the total global trading volume of Wolfies at 12:00 AM UTC on December 1, 2025.\nThe range that contains the reported value will resolve to 'Yes,'' and all other ranges will resolve to 'No.'\n\nThe resolution source will be the official Wolfies API endpoint (https://api.wolfswap.app/factions/wolfies/volume-global), specifically the 'totalVolume' field that reports the Wolfies' total trading volume aggregated from Minted and EbisusBay.\n\nIf the official API is unavailable or returns invalid data, the result will instead follow Wolfies' official announcements (website, blog, Discord, Twitter, or Telegram) that state the total global trading volume of Wolfies at 12:00 AM UTC on December 1, 2025.\n\nIf the reported value falls exactly between two brackets, the market will resolve to the higher range bracket.",
+                                        "category_id": 1
+                                },
+                                {
+                                        "id": 83,
+                                        "title": "Will BNB reach $1500 by the end of 2025?",
+                                        "description": "This market will resolve to 'Yes' if any 1 minute candle 'Close' price of BNB/USDT shown on Binance is $1,500 USDT or higher at any time between 00:00 AM UTC on October 20, 2025 and 00:00 AM UTC on January 1, 2026 (first second of the day). \nOtherwise this market will resolve to 'No'. The resolution source for this market is Binance BNB/USDT chart: https://www.binance.com/en/trade/BNB_USDT?. \nNo other data sources will be considered. Price precision is determined by the number of decimal places in the source.",
+                                        "category_id": 1
+                                },
+                                {
+                                        "id": 33,
+                                        "title": "Will $ETH reach $5,000 by 2026?",
+                                        "description": "This market will resolve to 'Yes' if any 1-hour candle 'Close' price of Ethereum (ETH) / USD shown on CoinMarketCap is $5,000 USD or higher at any time between 00:00 AM UTC on September 12, 2025 and 00:00 AM UTC on January 1, 2026 (first second of the day). Otherwise this market will resolve to 'No'. The resolution source for this market is CoinMarketCap ETH/USD chart: https://coinmarketcap.com/currencies/ethereum/. No other data sources will be considered. Price precision is determined by the number of decimal places in the source.",
+                                        "category_id": 1
+                                },
+                                {
+                                        "id": 72,
+                                        "title": "Will BNB stay in the top 5 by market cap on Nov 25?",
+                                        "description": "This market will resolve to 'Yes' if BNB is ranked within the top 5 cryptocurrencies by market capitalization on CoinMarketCap at 11:59 PM UTC on November 25, 2025 (the last second of the day). Otherwise, this market will resolve to 'No'. If the required data from CoinMarketCap is unavailable at settle time, this market will resolve to 'No'.\nThe resolution source for this market is the CoinMarketCap cryptocurrencies rankings page (https://coinmarketcap.com/). No other data sources will be considered.",
+                                        "category_id": 1
+                                },
+                                {
+                                        "id": 92,
+                                        "title": "Over 20M humans verified on World Network by December 31?",
+                                        "description": "This market will resolve to 'Yes' if the total number of unique humans displayed on the official World website exceeds 20,000,000 by December 31, 2025, 11:59 PM ET. Otherwise, it will resolve to 'No.'\n\nThe resolution source is the official World website, available at https://world.org/, specifically the 'Unique humans' figure shown on the homepage.\n\nThis market is based solely on the 'Unique humans' figure displayed on the official World website (https://world.org/), not on data from third-party analytics dashboards, or unofficial sources.\n\nIf the resolution source becomes permanently unavailable within this market's timeframe and before resolution criteria are met, the market will resolve based on a reliable alternative source or public data consistent with the official World Network figures.",
+                                        "category_id": 1
+                                },
+                                {
+                                        "id": 44,
+                                        "title": "Will $MCGA hit 3M$ MC before Feb 2026?",
+                                        "description": "This market will resolve to \"Yes\" if the market capitalization of $MCGA, as reported on CoinMarketCap, reaches $3,000,000 USD or higher at any time between 00:00 AM UTC on September 15, 2025, and 00:00 AM UTC on February 1, 2026 (first second of the day). Otherwise, this market will resolve to \"No\". The resolution source for this market is the market capitalization value displayed on CoinMarketCap's $MCGA page (https://coinmarketcap.com/currencies/make-cro-great-again/). Only CoinMarketCap will be used. Data from other sources will not be considered.",
+                                        "category_id": 1
+                                },
+                                {
+                                        "id": 67,
+                                        "title": "Will the total crypto market cap exceed $5T by Christmas Eve?",
+                                        "description": "This market resolves to \"Yes\" if CoinmarketCap (https://coinmarketcap.com/charts/) reports a total Crypto Market Cap >= $5 trillion USD at any time before December 24, 2025 00:00 UTC. Otherwise, this market will resolve to \"No\".",
+                                        "category_id": 1
+                                },
+                                {
+                                        "id": 30,
+                                        "title": "Will $Moon MC hit 20M before February, 2026?",
+                                        "description": "This market will resolve to \"Yes\" if the market capitalization of $MOON, as reported on CoinMarketCap, reaches $20,000,000 or higher at any time before 00:00 UTC on February 1, 2026. Otherwise, this market will resolve to \"No\".\nThe resolution source for this market is the market capitalization value displayed on CoinMarketCap's $MOON page (https://coinmarketcap.com/currencies/wolfswap/). Only CoinMarketCap will be used. Data from other sources will not be considered.",
+                                        "category_id": 1
+                                },
+                                {
+                                        "id": 103,
+                                        "title": "BNB all time high by December 31?",
+                                        "description": "This market will resolve to \"Yes\" if any Binance 1 minute candle for BNB/USDT between 16  October '25 13:00 and 11:59PM ET on the date specified in the title has a final 'High' price that is higher than any previous Binance 1 minute candle's \"High\" price on any prior date. Otherwise, this market will resolve to \"No\".\n\nThe resolution source for this market is Binance, specifically the BNB/USDT \"High\" prices currently available at https://www.binance.com/en/trade/BNB_USDT with '1m' and 'Candles' selected on the top bar.\n\nPlease note that this market is about the price according to Binance BNB/USDT, not according to other sources or spot markets.",
+                                        "category_id": 1
+                                },
+                                {
+                                        "id": 108,
+                                        "title": "Will Stable launch a token in 2025?",
+                                        "description": "This market will resolve to \"Yes\" if Stable officially launches a token by December 31, 2025, 11:59 PM ET. Otherwise, this market will resolve to \"No\".\n\nThe token must be actively and publicly transferable and tradable. Announcements alone do not qualify\n\nThe primary resolution source for this market will be information from Stable (https://www.stable.xyz/), however a consensus of credible reporting will also be used.\n",
+                                        "category_id": 1
+                                }
+                        ]
+                },
+                "2": {
+                        "name": "Finance",
+                        "markets": [
+                                {
+                                        "id": 89,
+                                        "title": "Largest company end of November",
+                                        "description": "This market will resolve to the largest company in the world by market cap on November 30, 2025, as of market close.\n\nThe resolution source for this market will be a consensus of credible reporting.",
+                                        "category_id": 2
+                                },
+                                {
+                                        "id": 85,
+                                        "title": "October Inflation",
+                                        "description": "This is a market about the one-month percent change in the seasonally adjusted Consumer Price Index for All Urban Consumers (CPI-U) published by the Bureau of Labor Statistics (BLS).\nThis market will resolve to the number the one-month seasonally adjusted Consumer Price Index for All Urban Consumers (CPI-U) increased in October 2025 according to the monthly BLS report.\nThe resolution source for this market will be the BLS Consumer Price Index report released for October 2025 (https://www.bls.gov/bls/news-release/cpi.htm), currently scheduled to be released on November 13, 2025, at 8:30 AM ET. Resolution of this market will take place upon release of the aforementioned data.\nNote: the resolution source for this market will be the official monthly Consumer Price Index for All Urban Consumers (CPI-U) which reports to the one decimal point (e.g. 0.4%). Thus, this is the level of precision that will be used when resolving the market.",
+                                        "category_id": 2
+                                },
+                                {
+                                        "id": 46,
+                                        "title": "Will gold price close ≥ $4000 on Dec 30, 2025?",
+                                        "description": "This market will resolve to YES if the COMEX Gold Continuous Contract (GC00) closing price at the final market close on December 30, 2025 is greater than or equal to $4,000 USD. Otherwise, this market will resolve to NO.\n\nThe resolution source will be COMEX trading data for the Gold Continuous Contract, as reported on Google Finance: https://www.google.com/finance/quote/GCW00:COMEX. Other sources will not be considered. If the source is unavailable, the market will resolve to NO.",
+                                        "category_id": 2
+                                },
+                                {
+                                        "id": 84,
+                                        "title": "Fed decision in December?",
+                                        "description": "The FED interest rates are defined in this market by the upper bound of the target federal funds range. The decisions on the target federal fund range are made by the Federal Open Market Committee (FOMC) meetings.\n\nThis market will resolve to the amount of basis points the upper bound of the target federal funds rate is changed by versus the level it was prior to the Federal Reserve's December 2025 meeting.\n\nIf the target federal funds rate is changed to a level not expressed in the displayed options, the change will be rounded up to the nearest 25 and will resolve to the relevant bracket. (e.g. if there's a cut/increase of 12.5 bps it will be considered to be 25 bps)\n\nThe resolution source for this market is the FOMC's statement after its meeting scheduled for December 9 - 10, 2025 according to the official calendar: https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm.\n\nThe level and change of the target federal funds rate is also published at the official website of the Federal Reserve at https://www.federalreserve.gov/monetarypolicy/openmarket.htm.\n\nThis market may resolve as soon as the FOMC's statement for their December meeting with relevant data is issued. If no statement is released by the end date of the next scheduled meeting, this market will resolve to the \"No change\" bracket.\n",
+                                        "category_id": 2
+                                },
+                                {
+                                        "id": 102,
+                                        "title": "How high will inflation get in 2025?",
+                                        "description": "This is a market on predicting the rate of inflation in 2025.",
+                                        "category_id": 2
+                                }
+                        ]
+                },
+                "4": {
+                        "name": "Technology",
+                        "markets": [
+                                {
+                                        "id": 49,
+                                        "title": "Will Russian and Ukraine war end in 2025?",
+                                        "description": "This market will resolve to 'Yes' if Russia and Ukraine officially acknowledge and mutually agree to a ceasefire between 00:00 AM UTC on September 19, 2025 and 00:00 AM UTC on January 1, 2026. Otherwise, this market will resolve to 'No.'\n\nThe agreement must represent a general ceasefire covering the overall conflict. Agreements limited to specific regions, humanitarian pauses, or temporary suspensions (e.g., related only to energy infrastructure or the Black Sea) will not qualify. \nIf a ceasefire agreement is formally announced within the resolution window but its effective date falls outside, the market will still resolve to 'Yes.'\n\nThe resolution will be based on a consensus of credible reporting and/or official announcements. Acceptable sources include official government statements from Russia or Ukraine, as well as a wide consensus of credible media reporting confirming that a ceasefire agreement has been reached.",
+                                        "category_id": 4
+                                },
+                                {
+                                        "id": 47,
+                                        "title": "Will Prabowo Subianto out as president of Indonesia in 2025?",
+                                        "description": "This market will resolve to 'Yes' if Indonesia president Prabowo Subianto officially resigns or is formally dismissed from office between 00:00 AM UTC on September 18, 2025 and 00:00 AM UTC on January 1, 2026 (first second of the day). Otherwise, this market will resolve to 'No'.\n\nThe resolution source for this market will be the official announcements published on the official website of the President of the Republic of Indonesia (https://www.presidenri.go.id/). If the information cannot be obtained from this website, the market will resolve to 'No'.",
+                                        "category_id": 4
+                                }
+                        ]
+                }
+        };
+
+        // Market loading functions
+        async function loadMarkets() {
+            const loadingEl = document.getElementById('markets-loading');
+
+            // Use embedded real data (no CORS issues)
+            marketsData = staticMarketsByCategory;
+            console.log('✅ Using embedded real market data from Delphi API');
+
+            // Populate each category
+            Object.keys(marketsData).forEach(categoryId => {
+                const category = marketsData[categoryId];
+                const tbodyEl = document.getElementById(`markets-tbody-${categoryId}`);
+
+                if (!tbodyEl) {
+                    console.warn(`No tbody element found for category ${categoryId}`);
+                    return;
+                }
+
+                // Clear existing rows
+                tbodyEl.innerHTML = '';
+
+                // Populate table for this category
+                category.markets.forEach(market => {
+                    const row = document.createElement('tr');
+                    row.className = 'market-row';
+                    row.onclick = () => selectMarket(market);
+
+                    row.innerHTML = `
+                        <td class="market-id">#${market.id}</td>
+                        <td class="market-title" title="${escapeHtml(market.title)}">${escapeHtml(market.title)}</td>
+                        <td class="market-description">${escapeHtml(market.description)}</td>
+                    `;
+
+                    tbodyEl.appendChild(row);
+                });
+            });
+
+            // Show tables immediately
+            loadingEl.style.display = 'none';
+            document.querySelectorAll('.markets-table').forEach(table => {
+                table.style.display = 'table';
+            });
+
+            console.log(`📊 Loaded ${Object.keys(marketsData).length} market categories`);
+        }
+
+        function showTemporaryMessage(message) {
+            const messageDiv = document.createElement('div');
+            messageDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #28a745;
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                z-index: 1000;
+                font-size: 14px;
+                font-weight: 500;
+            `;
+            messageDiv.textContent = message;
+            document.body.appendChild(messageDiv);
+
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 3000);
+        }
+
+        function switchMarketCategory(categoryId) {
+            // Update tab buttons
+            document.querySelectorAll('.market-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelector(`[onclick="switchMarketCategory(${categoryId})"]`).classList.add('active');
+
+            // Update category content
+            document.querySelectorAll('.category-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(`category-${categoryId}`).classList.add('active');
+        }
+
+        function selectMarket(market) {
+            selectedMarketId = market.id;
+
+            // Update UI selection (remove selection from all categories)
+            document.querySelectorAll('.market-row').forEach(row => row.classList.remove('selected'));
+            event.currentTarget.classList.add('selected');
+
+            // Populate form fields
+            document.getElementById('marketQuestion').value = market.title;
+
+            // Generate a basic settlement rule from description
+            const shortDesc = market.description.length > 200
+                ? market.description.substring(0, 200) + '...'
+                : market.description;
+            document.getElementById('settlementRule').value = shortDesc;
+        }
+
+        function formatNumber(num) {
+            if (num >= 1e9) return (num / 1e9).toFixed(1) + 'B';
+            if (num >= 1e6) return (num / 1e6).toFixed(1) + 'M';
+            if (num >= 1e3) return (num / 1e3).toFixed(1) + 'K';
+            return Math.round(num).toString();
+        }
 
         function selectEnvironment(env) {
             currentEnvironment = env;
@@ -1362,7 +1839,7 @@
         }
 
         async function fetchResolution() {
-            const marketId = CONFIG.DEFAULT_MARKET_ID;
+            const marketId = selectedMarketId || CONFIG.DEFAULT_MARKET_ID;
             const marketQuestion = document.getElementById('marketQuestion').value;
             const settlementRule = document.getElementById('settlementRule').value;
 
@@ -1815,6 +2292,9 @@
 
         // Load sample data on page load
         window.addEventListener('load', () => {
+            // Load markets on page load
+            loadMarkets();
+
             const sampleData = {
   "market_id": 123,
   "question": "Will Bitcoin (BTC) price drop to $102,000 or below by November 12, 2025 23:59 UTC?",
